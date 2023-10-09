@@ -1,0 +1,7 @@
+{
+    "files.associations": {
+        ".arcignore": "plaintext",
+        "stdio.h": "c",
+        "assert.h": "c"
+    }
+}

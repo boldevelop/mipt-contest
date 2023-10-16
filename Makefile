@@ -3,53 +3,61 @@ CFLAGS=-Wall -Werror=declaration-after-statement -O0 -std=gnu11 -lm -g
 
 SRC1=./src/1/
 
-mkbin:
-	mkdir -p ./bin
-
-rl: mkbin
+rl:
 	$(CC) $(CFLAGS) $(SRC1)$@.c -o ./bin/$@
 
-cf: mkbin
+cf:
 	$(CC) $(CFLAGS) $(SRC1)$@.c -o ./bin/$@
 
-ee: mkbin
+ee:
 	$(CC) $(CFLAGS) $(SRC1)$@.c -o ./bin/$@
 
-de: mkbin
+de:
 	$(CC) $(CFLAGS) $(SRC1)$@.c -o ./bin/$@
 
-ns: mkbin
+ns:
 	$(CC) $(CFLAGS) $(SRC1)$@.c -o ./bin/$@
 
-rps: mkbin
+rps:
 	$(CC) $(CFLAGS) $(SRC1)$@.c -o ./bin/$@
 
-fs: mkbin
+fs:
 	$(CC) $(CFLAGS) $(SRC1)$@.c -o ./bin/$@
 
-fm: mkbin
+fm:
 	$(CC) $(CFLAGS) $(SRC1)$@.c -o ./bin/$@
 
-pp: mkbin
+pp:
 	$(CC) $(CFLAGS) $(SRC1)$@.c -o ./bin/$@
 
-sf: mkbin
+sf:
 	$(CC) $(CFLAGS) $(SRC1)$@.c -o ./bin/$@
 
-mf: mkbin
+mf:
 	$(CC) $(CFLAGS) $(SRC1)$@.c -o ./bin/$@
 
-hwf: mkbin
+hwf:
 	$(CC) $(CFLAGS) $(SRC1)hwf/$@.c -o ./bin/$@
 
-hwf-test: mkbin
-	$(CC) $(CFLAGS) $(SRC1)hwf/hwf.c -o ./bin/hwf -DLOCAL_TEST
+hwf-test:
+	$(CC) $(CFLAGS) $(SRC1)hwf/hwf.c -o ./bin/$@ -DLOCAL_TEST
 
-hwf-stress: mkbin
-	$(CC) $(CFLAGS) $(SRC1)hwf/hwf.c -o ./bin/hwf -DLOCAL_STRESS_TEST
+hwf-stress:
+	$(CC) $(CFLAGS) $(SRC1)hwf/hwf.c -o ./bin/$@ -DLOCAL_STRESS_TEST
+
+
+hwf.o:
+	$(CC) $(CFLAGS) -o ./build/$@ -c $(SRC1)hwf/hwf.c
+
+hwf-game.o:
+	$(CC) $(CFLAGS) -o ./build/$@ -c $(SRC1)hwf/game.c
+
+hwf-game: hwf-game.o hwf.o
+	$(CC) $(CFLAGS) -o ./bin/$@ ./build/hwf-game.o ./build/hwf.o
 
 lint:
 	VERSION_CONTROL=none indent ./src/1/**/*.c -kr -as --no-tabs
 
 clean:
 	rm -rf ./bin/*
+	rm -rf ./build/*

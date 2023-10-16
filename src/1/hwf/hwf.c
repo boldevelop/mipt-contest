@@ -74,6 +74,7 @@ int get_optimal(int total, int possible)
 
 int next_turn(int total, int possible)
 {
+    assert(m_fib_size >= 2);
     if (possible >= total) {
         return total;
     }

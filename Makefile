@@ -40,13 +40,16 @@ mf: mkbin
 	$(CC) $(CFLAGS) $(SRC1)$@.c -o ./bin/$@
 
 hwf: mkbin
-	$(CC) $(CFLAGS) $(SRC1)$@.c -o ./bin/$@
+	$(CC) $(CFLAGS) $(SRC1)hwf/$@.c -o ./bin/$@
 
 hwf-test: mkbin
-	$(CC) $(CFLAGS) $(SRC1)hwf.c -o ./bin/hwf -DLOCAL_TEST
+	$(CC) $(CFLAGS) $(SRC1)hwf/hwf.c -o ./bin/hwf -DLOCAL_TEST
+
+hwf-stress: mkbin
+	$(CC) $(CFLAGS) $(SRC1)hwf/hwf.c -o ./bin/hwf -DLOCAL_STRESS_TEST
 
 lint:
-	VERSION_CONTROL=none indent ./src/**/*.c -kr -as --no-tabs
+	VERSION_CONTROL=none indent ./src/1/**/*.c -kr -as --no-tabs
 
 clean:
 	rm -rf ./bin/*

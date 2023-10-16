@@ -10,8 +10,24 @@
 #include <stdlib.h>
 #include <assert.h>
 
+/* while the datatype is int for mem fib
+   45 cuz we skip first 2 values (47 - 2) */
+#define NFIB 45
+
+int m_fib[NFIB] = { 0 };
+
+int m_fib_size = 0;
+
+void init_mfib()
+{
+    m_fib[0] = 1;
+    m_fib[1] = 2;
+    m_fib_size = 2;
+}
+
 int get_nearest_fib(int required)
 {
+#if NAIVE
     int t, f = 0, s = 1;
     while (s <= required) {
         t = s;
@@ -20,6 +36,22 @@ int get_nearest_fib(int required)
     }
 
     return f;
+#else
+    int i_fib;
+    while (m_fib[m_fib_size - 1] < required) {
+        assert(m_fib_size < NFIB);
+        m_fib[m_fib_size] = m_fib[m_fib_size - 2] + m_fib[m_fib_size - 1];
+        m_fib_size++;
+    }
+
+    /* maybe binsearch */
+    i_fib = m_fib_size - 1;
+    while (m_fib[i_fib] > required) {
+        i_fib--;
+    }
+
+    return m_fib[i_fib];
+#endif
 }
 
 int get_optimal(int total, int possible)
@@ -62,6 +94,7 @@ void testCase(int t, int p, int should)
 
 int main()
 {
+    init_mfib();
     testCase(10, 9, 2);
     testCase(100, 99, 3);
     testCase(1000, 999, 13);
@@ -84,5 +117,29 @@ int main()
 
     testCase(1000000, 1000, 55);
     testCase(500500501, 111, 89);
+}
+#endif
+#ifdef LOCAL_STRESS_TEST
+void testCase(int t, int p, int should)
+{
+    int res = next_turn(t, p);
+    assert(res == should);
+}
+
+/*
+naive
+real    0m6.536s
+user    0m6.536s
+mem
+real    0m3.855s
+user    0m3.856s
+ */
+int main()
+{
+    init_mfib();
+    for (int i = 0; i < 10000000; ++i) {
+        testCase(500500501, 111, 89);
+        testCase(1000000, 1000, 55);
+    }
 }
 #endif

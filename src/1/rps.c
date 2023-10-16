@@ -2,7 +2,8 @@
 #include <stdio.h>
 
 /* n^k mod m */
-unsigned pow_mod(unsigned n, unsigned k, unsigned m) {
+unsigned pow_mod(unsigned n, unsigned k, unsigned m)
+{
     unsigned mult = n % m;
     unsigned prod = 1;
     while (k > 0) {
@@ -16,7 +17,8 @@ unsigned pow_mod(unsigned n, unsigned k, unsigned m) {
     return prod;
 }
 
-unsigned powu(unsigned b, unsigned e) {
+unsigned powu(unsigned b, unsigned e)
+{
     unsigned prod = 1;
     while (e > 0) {
         if ((e % 2) == 1) {
@@ -29,21 +31,27 @@ unsigned powu(unsigned b, unsigned e) {
     return prod;
 }
 
-unsigned dm[32] = {0};
+unsigned dm[32] = { 0 };
 
-unsigned sp(unsigned b, unsigned h) {
-    if (h < 2) return dm[h];
-    if (dm[h] != 0) return dm[h];
+unsigned sp(unsigned b, unsigned h)
+{
+    if (h < 2)
+        return dm[h];
+    if (dm[h] != 0)
+        return dm[h];
     dm[h] = powu(b, sp(b, h - 1));
     return dm[h];
 }
 
-unsigned spmod(unsigned b, unsigned h, unsigned m) {
-    if (h < 2) return dm[h];
+unsigned spmod(unsigned b, unsigned h, unsigned m)
+{
+    if (h < 2)
+        return dm[h];
     return pow_mod(b, sp(b, h - 1), m);
 }
 
-int main() {
+int main()
+{
     unsigned int a, b, n;
     int ret = scanf("%d%d%d", &a, &b, &n);
     if (ret < 3) {

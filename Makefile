@@ -1,41 +1,52 @@
 CC=gcc
 CFLAGS=-Wall -Werror=declaration-after-statement -O0 -std=gnu11 -lm -g
 
-rl:
-	$(CC) $(CFLAGS) ./src/$@.c -o ./bin/$@
+SRC1=./src/1/
 
-cf:
-	$(CC) $(CFLAGS) ./src/$@.c -o ./bin/$@
+mkbin:
+	mkdir -p ./bin
 
-ee:
-	$(CC) $(CFLAGS) ./src/$@.c -o ./bin/$@
+rl: mkbin
+	$(CC) $(CFLAGS) $(SRC1)$@.c -o ./bin/$@
 
-de:
-	$(CC) $(CFLAGS) ./src/$@.c -o ./bin/$@
+cf: mkbin
+	$(CC) $(CFLAGS) $(SRC1)$@.c -o ./bin/$@
 
-ns:
-	$(CC) $(CFLAGS) ./src/$@.c -o ./bin/$@
+ee: mkbin
+	$(CC) $(CFLAGS) $(SRC1)$@.c -o ./bin/$@
 
-rps:
-	$(CC) $(CFLAGS) ./src/$@.c -o ./bin/$@
+de: mkbin
+	$(CC) $(CFLAGS) $(SRC1)$@.c -o ./bin/$@
 
-fs:
-	$(CC) $(CFLAGS) ./src/$@.c -o ./bin/$@
+ns: mkbin
+	$(CC) $(CFLAGS) $(SRC1)$@.c -o ./bin/$@
 
-fm:
-	$(CC) $(CFLAGS) ./src/$@.c -o ./bin/$@
+rps: mkbin
+	$(CC) $(CFLAGS) $(SRC1)$@.c -o ./bin/$@
 
-pp:
-	$(CC) $(CFLAGS) ./src/$@.c -o ./bin/$@
+fs: mkbin
+	$(CC) $(CFLAGS) $(SRC1)$@.c -o ./bin/$@
 
-sf:
-	$(CC) $(CFLAGS) ./src/$@.c -o ./bin/$@
+fm: mkbin
+	$(CC) $(CFLAGS) $(SRC1)$@.c -o ./bin/$@
 
-mf:
-	$(CC) $(CFLAGS) ./src/$@.c -o ./bin/$@
+pp: mkbin
+	$(CC) $(CFLAGS) $(SRC1)$@.c -o ./bin/$@
 
-hmw:
-	$(CC) $(CFLAGS) ./src/$@.c -o ./bin/$@
+sf: mkbin
+	$(CC) $(CFLAGS) $(SRC1)$@.c -o ./bin/$@
+
+mf: mkbin
+	$(CC) $(CFLAGS) $(SRC1)$@.c -o ./bin/$@
+
+hwf: mkbin
+	$(CC) $(CFLAGS) $(SRC1)$@.c -o ./bin/$@
+
+hwf-test: mkbin
+	$(CC) $(CFLAGS) $(SRC1)hwf.c -o ./bin/hwf -DLOCAL_TEST
+
+lint:
+	VERSION_CONTROL=none indent ./src/1/rps.c -kr -as --no-tabs
 
 clean:
 	rm -rf ./bin/*

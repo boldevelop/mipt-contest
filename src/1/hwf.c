@@ -46,7 +46,7 @@ int next_turn(int total, int possible) {
   return get_optimal(total, possible);
 }
 
-#ifdef __LOCAL_TEST__
+#ifdef LOCAL_TEST
 int count = 1;
 void testCase(int t, int p, int should) {
     int res = next_turn(t, p);

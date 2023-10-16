@@ -18,7 +18,8 @@ unsigned f[13] = {
 };
 
 /* 463=3*5! + 4 * 4! + 1 * 3! + 0 * 2! + 1 * 1! = 34101 */
-void fs(unsigned x) {
+void fs(unsigned x)
+{
     unsigned i = 12;
     while (i > 1) {
         if (f[i] <= x) {
@@ -35,7 +36,8 @@ void fs(unsigned x) {
     printf("%d.\n", x);
 }
 
-int main() {
+int main()
+{
     unsigned x;
     int res = scanf("%d", &x);
     if (res < 1) {

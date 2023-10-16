@@ -5,7 +5,8 @@
 typedef long long ll;
 
 /* ax + by = d */
-void extended_euclid(ll x, ll y) {
+void extended_euclid(ll x, ll y)
+{
     ll r, q, temp_s, temp_t;
     ll s0 = 1, t0 = 0;
     ll s1 = 0, t1 = 1;
@@ -37,7 +38,8 @@ void extended_euclid(ll x, ll y) {
     }
 }
 
-int main() {
+int main()
+{
     ll x, y;
     int res = scanf("%lli %lli", &x, &y);
     if (res != 2) {

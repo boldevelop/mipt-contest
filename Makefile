@@ -46,7 +46,7 @@ hwf-test: mkbin
 	$(CC) $(CFLAGS) $(SRC1)hwf.c -o ./bin/hwf -DLOCAL_TEST
 
 lint:
-	VERSION_CONTROL=none indent ./src/1/rps.c -kr -as --no-tabs
+	VERSION_CONTROL=none indent ./src/**/*.c -kr -as --no-tabs
 
 clean:
 	rm -rf ./bin/*

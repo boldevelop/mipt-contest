@@ -10,7 +10,8 @@
 #include <stdlib.h>
 #include <assert.h>
 
-int get_nearest_fib(int required) {
+int get_nearest_fib(int required)
+{
     int t, f = 0, s = 1;
     while (s <= required) {
         t = s;
@@ -21,7 +22,8 @@ int get_nearest_fib(int required) {
     return f;
 }
 
-int get_optimal(int total, int possible) {
+int get_optimal(int total, int possible)
+{
     int rest = total, fib;
 
     for (;;) {
@@ -38,17 +40,19 @@ int get_optimal(int total, int possible) {
     return rest;
 }
 
-int next_turn(int total, int possible) {
-  if (possible >= total) {
-    return total;
-  }
+int next_turn(int total, int possible)
+{
+    if (possible >= total) {
+        return total;
+    }
 
-  return get_optimal(total, possible);
+    return get_optimal(total, possible);
 }
 
 #ifdef LOCAL_TEST
 int count = 1;
-void testCase(int t, int p, int should) {
+void testCase(int t, int p, int should)
+{
     int res = next_turn(t, p);
     printf("%d: ", count);
     printf("%d %d = %d (exp %d)\n", t, p, next_turn(t, p), should);
@@ -56,7 +60,8 @@ void testCase(int t, int p, int should) {
     count++;
 }
 
-int main() {
+int main()
+{
     testCase(10, 9, 2);
     testCase(100, 99, 3);
     testCase(1000, 999, 13);

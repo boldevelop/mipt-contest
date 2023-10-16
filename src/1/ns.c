@@ -4,7 +4,8 @@
 
 #define N 32
 
-void print_num(unsigned int x, unsigned int y) {
+void print_num(unsigned int x, unsigned int y)
+{
     unsigned int n[N];
     int i = 0;
 
@@ -24,7 +25,8 @@ void print_num(unsigned int x, unsigned int y) {
     printf("\n");
 }
 
-int main(void) {
+int main(void)
+{
     unsigned int x, y;
     int res = scanf("%d%d", &x, &y);
     if (res < 2) {

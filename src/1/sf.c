@@ -4,7 +4,8 @@
 #define N 47
 unsigned f[N];
 
-unsigned init_fib(unsigned x) {
+unsigned init_fib(unsigned x)
+{
     unsigned t, i = 2, first = 0, s = 1;
     f[0] = 0;
     f[1] = 1;
@@ -17,7 +18,8 @@ unsigned init_fib(unsigned x) {
     return i - 1;
 }
 
-void sf(unsigned x) {
+void sf(unsigned x)
+{
     unsigned max = init_fib(x);
 
     if (max - 1 <= 1) {
@@ -33,11 +35,13 @@ void sf(unsigned x) {
     printf("\n");
 }
 
-int main() {
+int main()
+{
     int res;
     unsigned x;
     res = scanf("%d", &x);
-    if (res != 1) abort();
+    if (res != 1)
+        abort();
     sf(x);
     return 0;
 }

@@ -4,14 +4,22 @@
 
 typedef long long ll;
 
-ll llabs(ll x) { return (x < 0) ? -x : x; }
-ll mod(ll x, ll y) { return llabs(x) % llabs(y); }
+ll llabs(ll x)
+{
+    return (x < 0) ? -x : x;
+}
 
-void cf(ll n, ll d) {
+ll mod(ll x, ll y)
+{
+    return llabs(x) % llabs(y);
+}
+
+void cf(ll n, ll d)
+{
     ll r, q;
     assert(d != 0);
     while (d != 0) {
-        r = mod(n ,d);
+        r = mod(n, d);
         q = (n - r) / d;
         printf("%lli ", q);
         n = d;
@@ -19,7 +27,8 @@ void cf(ll n, ll d) {
     }
 }
 
-int main() {
+int main()
+{
     ll num, den;
 
     int res = scanf("%lli %lli", &num, &den);

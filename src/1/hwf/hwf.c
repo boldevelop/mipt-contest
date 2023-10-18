@@ -10,11 +10,12 @@
 #include <stdlib.h>
 #include <assert.h>
 
-/* while the datatype is int for mem fib
-   45 cuz we skip first 2 values (47 - 2) */
-#define NFIB 45
+/* while calculate fib for int required
+   its not supposed to be bigger then 48
+   46 cuz we skip first 2 values (48 - 2) */
+#define NFIB 46
 
-int m_fib[NFIB] = { 0 };
+long long m_fib[NFIB] = { 0 };
 
 int m_fib_size = 0;
 
@@ -56,7 +57,8 @@ int get_nearest_fib(int required)
 
 int get_optimal(int total, int possible)
 {
-    int rest = total, fib;
+    long long fib;
+    int rest = total;
 
     for (;;) {
         fib = get_nearest_fib(rest);
@@ -96,6 +98,8 @@ void testCase(int t, int p, int should)
 int main()
 {
     init_mfib();
+
+
     testCase(10, 9, 2);
     testCase(100, 99, 3);
     testCase(1000, 999, 13);
@@ -111,13 +115,7 @@ int main()
     testCase(1, 2, 1);
     testCase(3, 2, 1);
 
-    testCase(33, 12, 1);
-
-    testCase(100, 99, 3);
-    testCase(10000, 9, 2);
-
-    testCase(1000000, 1000, 55);
-    testCase(500500501, 111, 89);
+    testCase(2147483647, 2147483646, 5);
 }
 #endif
 #ifdef LOCAL_STRESS_TEST

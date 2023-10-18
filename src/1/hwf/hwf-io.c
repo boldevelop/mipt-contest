@@ -87,13 +87,13 @@ int read_int(int min, int max)
             if (size >= 10) {
                 printf("Wrong input. Too big number\n");
             } else {
-                printf("Wrong input. Should more than %d\n", min);
+                printf("Wrong input. Should more or equal than %d\n", min);
             }
             continue;
         }
 
         if (val > max) {
-            printf("Wrong input. Should less than %d\n", max);
+            printf("Wrong input. Should less or equal than %d\n", max);
             continue;
         }
 

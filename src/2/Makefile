@@ -3,7 +3,7 @@ CFLAGS = -Wall -Werror=declaration-after-statement -O0 -std=gnu11 -lm -g
 BUILD_DIR = ./build
 BIN_DIR = ./bin
 
-SRC = pn se
+SRC = pn se ts
 
 all: $(SRC)
 $(SRC):

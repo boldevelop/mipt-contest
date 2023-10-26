@@ -1,10 +1,12 @@
-void com_swap(int *p, int l, int r) {
+static void com_swap(int *p, int l, int r)
+{
     int t = p[l];
     p[l] = p[r];
     p[r] = t;
 }
 
-void com_reverse(int *p, int l, int r) {
+static void com_reverse(int *p, int l, int r)
+{
     while (l < r) {
         com_swap(p, l, r);
         l++;
@@ -17,7 +19,8 @@ void com_reverse(int *p, int l, int r) {
  * s: size of vector p
  * return success of permutation
  */
-int next_perm(int *p, const int s) {
+int next_perm(int *p, const int s)
+{
     int i = s - 2;
     int j = s - 1;
     int found = 0;

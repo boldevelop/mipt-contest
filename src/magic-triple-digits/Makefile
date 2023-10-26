@@ -1,5 +1,5 @@
 CC = gcc
-CFLAGS = -Wall -Werror=declaration-after-statement -O0 -std=gnu11 -lm -g
+CFLAGS = -Wall -Werror=declaration-after-statement -O2 -std=gnu11 -lm -g
 CFLAGSD =
 # CFLAGS = -Wall -O0 -std=gnu11 -lm -g
 BUILD_DIR = ./build
@@ -8,14 +8,16 @@ BIN_DIR = ./bin
 SRC = main combinatorics mtd_mem
 OBJS = $(SRC:%=$(BUILD_DIR)/%.o)
 
-all: mtd
+all: mtd mtd-research
 
 .PHONY: run
 run: mtd
 	$(BIN_DIR)/$<
 
-mtd: $(OBJS)
-	@mkdir -p $(BIN_DIR)
+mtd:
+	$(CC) $(CFLAGS) -c main.c -o $(BUILD_DIR)/main.o
+	$(CC) $(CFLAGS) -c combinatorics.c -o $(BUILD_DIR)/combinatorics.o
+	$(CC) $(CFLAGS) -c mtd_mem.c -o $(BUILD_DIR)/mtd_mem.o
 	$(CC) $(OBJS) -o $(BIN_DIR)/$@
 
 $(BUILD_DIR)/%.o: %.c
@@ -23,10 +25,13 @@ $(BUILD_DIR)/%.o: %.c
 	$(CC) $(CFLAGS) $(CFLAGSD) -c $< -o $@
 
 mtd-research:
-	make mtd CFLAGSD=-DRESEARCH
+	$(CC) $(CFLAGS) -DRESEARCH -c main.c -o $(BUILD_DIR)/main.o
+	$(CC) $(CFLAGS) -DRESEARCH -c combinatorics.c -o $(BUILD_DIR)/combinatorics.o
+	$(CC) $(CFLAGS) -DRESEARCH -c mtd_mem.c -o $(BUILD_DIR)/mtd_mem.o
+	$(CC) $(OBJS) -o $(BIN_DIR)/$@
 
 mtd-research-run: mtd-research
-	$(BIN_DIR)/mtd > research.data
+	$(BIN_DIR)/mtd-research > research10.data
 
 lint:
 	VERSION_CONTROL=none indent ./*.c -kr -as --no-tabs

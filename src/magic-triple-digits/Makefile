@@ -15,6 +15,8 @@ run: mtd
 	$(BIN_DIR)/$<
 
 mtd:
+	@mkdir -p $(BUILD_DIR)
+	@mkdir -p $(BIN_DIR)
 	$(CC) $(CFLAGS) -c main.c -o $(BUILD_DIR)/main.o
 	$(CC) $(CFLAGS) -c combinatorics.c -o $(BUILD_DIR)/combinatorics.o
 	$(CC) $(CFLAGS) -c mtd_mem.c -o $(BUILD_DIR)/mtd_mem.o
@@ -25,6 +27,8 @@ $(BUILD_DIR)/%.o: %.c
 	$(CC) $(CFLAGS) $(CFLAGSD) -c $< -o $@
 
 mtd-research:
+	@mkdir -p $(BUILD_DIR)
+	@mkdir -p $(BIN_DIR)
 	$(CC) $(CFLAGS) -DRESEARCH -c main.c -o $(BUILD_DIR)/main.o
 	$(CC) $(CFLAGS) -DRESEARCH -c combinatorics.c -o $(BUILD_DIR)/combinatorics.o
 	$(CC) $(CFLAGS) -DRESEARCH -c mtd_mem.c -o $(BUILD_DIR)/mtd_mem.o

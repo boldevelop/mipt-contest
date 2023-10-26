@@ -214,7 +214,7 @@ int main()
     mtd_arr pp, saved;
     mtd_arr_ptr saved_arrays;
 
-    for (int n = 3; n <= 8; ++n) {
+    for (int n = 3; n <= 7; ++n) {
         num_count = n * 2;
 
         pp = mtd_alloc(num_count);

@@ -9,7 +9,7 @@
 void mtd_print(mtd_arr pp)
 {
     for (int i = 0; i < pp.s; ++i) {
-        printf("%d", At(pp, i));
+        printf("%d", At(pp, i) + 1);
     }
     printf("\n");
 }
@@ -48,6 +48,17 @@ int mtd_rows_sum_equal(mtd_arr pp)
     return 1;
 }
 
+int mtd_triangle_sum(mtd_arr pp)
+{
+    int sum = 0;
+
+    for (int i = pp.s / 2; i < pp.s; ++i) {
+        sum += At(pp, i);
+    }
+
+    return sum;
+}
+
 void mtd_rows_print(mtd_arr pp)
 {
     int first_numbers_size = pp.s / 2;
@@ -59,7 +70,7 @@ void mtd_rows_print(mtd_arr pp)
                At(pp, j + first_numbers_size));
     }
 #ifndef RESEARCH
-    printf("\n");
+    // printf("\n");
 #endif
 }
 
@@ -76,12 +87,44 @@ int mtd_is_cyclic_permutations(mtd_arr pp, mtd_arr saved)
     return 0;
 }
 
+
+void mtd_init_indexes(mtd_arr * indexes, int angles_count)
+{
+    for (int i = 0; i < angles_count; ++i) {
+        mtd_push(indexes, i);
+    }
+}
+
+int mtd_next_indexes(mtd_arr indexes, int num_count) {
+    if (At(indexes, indexes.s - 1) != num_count - 1) {
+        At(indexes, indexes.s - 1)++;
+        return 1;
+    }
+
+    for (int i = indexes.s - 2; i >= 0; i--) {
+        if (At(indexes, i) == At(indexes, i + 1) - 1) {
+            continue;
+        }
+
+        At(indexes, i)++;
+        for (int j = i + 1; j < indexes.s; ++j) {
+            At(indexes, j) = At(indexes, j - 1) + 1;
+        }
+
+        return 1;
+    }
+
+    return 0;
+}
+
 #ifndef RESEARCH
 int main()
 {
     int prev, angles_count, num_count;
-    mtd_arr pp, saved;
+    mtd_arr pp, saved, indexes;
     int res = scanf("%d", &angles_count);
+    int sum;
+    int sum_eq;
 
     if (res != 1) {
         abort();
@@ -94,7 +137,31 @@ int main()
 
     pp = mtd_alloc(num_count);
     saved = mtd_alloc(num_count);
+    indexes = mtd_alloc(angles_count);
+    mtd_init_indexes(&indexes, angles_count);
     mtd_init(&pp, num_count);
+
+    do {
+        mtd_print(indexes);
+    } while (mtd_next_indexes(indexes, num_count));
+    return 0;
+
+    do {
+        sum = mtd_triangle_sum(pp);
+        sum_eq = mtd_rows_sum_equal(pp);
+        if (sum_eq/*  || sum % angles_count == 0 */) {
+            mtd_rows_print(pp);
+            if (sum_eq) {
+                printf("+ ");
+            } else {
+                printf("- ");
+            }
+            printf("sum = %d; ", sum);
+            mtd_print(pp);
+            printf("\n");
+        }
+    } while(next_perm(pp.buf, pp.s));
+    return 0;
 
     prev = At(pp, 0);
     do {

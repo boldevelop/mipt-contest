@@ -14,6 +14,18 @@ void mtd_print(mtd_arr pp)
     printf("\n");
 }
 
+void mtd_print_sep(mtd_arr pp)
+{
+    for (int i = 0; i < pp.s / 2; ++i) {
+        printf("%d,", At(pp, i));
+    }
+    printf("  ");
+    for (int i = pp.s / 2; i < pp.s; ++i) {
+        printf("%d,", At(pp, i));
+    }
+    // printf("\n");
+}
+
 void mtd_init(mtd_arr * pp, const int s)
 {
     for (int i = 0; i < s; ++i) {
@@ -117,13 +129,40 @@ int mtd_next_indexes(mtd_arr indexes, int num_count) {
     return 0;
 }
 
+void mtd_get_comb(mtd_arr indexes, int num_counts, mtd_arr* pp)
+{
+    int i = 0, j = num_counts / 2, n = 0;
+    while (n != num_counts) {
+        if (At(indexes, i) == n) {
+            At((*pp), i++) = n + 1;
+        } else {
+            At((*pp), j++) = n + 1;
+        }
+        n++;
+    }
+}
+
+int mtd_is_sum_dividable(mtd_arr pp, int* sum)
+{
+    *sum = 0;
+    for (int i = pp.s / 2; i < pp.s; ++i) {
+        *sum += At(pp, i);
+    }
+    return (*sum) % (pp.s / 2) == 0;
+}
+
+int mtd_is_sum_equal(mtd_arr pp)
+{
+    return 1;
+}
+
 #ifndef RESEARCH
 int main()
 {
     int prev, angles_count, num_count;
     mtd_arr pp, saved, indexes;
     int res = scanf("%d", &angles_count);
-    int sum;
+    int sum = 0;
     int sum_eq;
 
     if (res != 1) {
@@ -142,7 +181,19 @@ int main()
     mtd_init(&pp, num_count);
 
     do {
-        mtd_print(indexes);
+        // mtd_print(indexes);
+        /* https://oeis.org/search?q=4+9+26+76+246+809&go=Search */
+        /* dynamic array, (maybe 2 array)
+           calculate indexes while i[0] < 1
+           check sum for first 3 part, then for second
+           store to array, then sort
+        */
+        mtd_get_comb(indexes, num_count, &pp);
+        if (mtd_is_sum_dividable(pp, &sum)) {
+            mtd_print_sep(pp);
+            printf("  ");
+            printf("%d\n", sum);
+        }
     } while (mtd_next_indexes(indexes, num_count));
     return 0;
 

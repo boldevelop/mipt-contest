@@ -60,6 +60,33 @@ int mtd_rows_sum_equal(mtd_arr pp)
     return 1;
 }
 
+int mtd_rows_sum_equal_r(mtd_arr pp)
+{
+    int half = pp.s / 2;
+    int sum = -1;
+
+    for (int i = half; i < pp.s; ++i) {
+        int j = (i + 1) % half, temp_sum = 0;
+
+        temp_sum = At(pp, i);
+        temp_sum += At(pp, i - half);
+        temp_sum += At(pp, j - half);
+
+        if (sum == -1) {
+            sum = temp_sum;
+            continue;
+        }
+
+        if (sum != temp_sum) {
+            return 0;
+        }
+
+        continue;
+    }
+
+    return 1;
+}
+
 int mtd_triangle_sum(mtd_arr pp)
 {
     int sum = 0;
@@ -113,7 +140,7 @@ int mtd_next_indexes(mtd_arr indexes, int num_count) {
         return 1;
     }
 
-    for (int i = indexes.s - 2; i >= 0; i--) {
+    for (int i = indexes.s - 2; i >= 1; i--) {
         if (At(indexes, i) == At(indexes, i + 1) - 1) {
             continue;
         }
@@ -142,18 +169,18 @@ void mtd_get_comb(mtd_arr indexes, int num_counts, mtd_arr* pp)
     }
 }
 
-int mtd_is_sum_dividable(mtd_arr pp, int* sum)
+int mtd_is_sum_dividable(mtd_arr pp, int* sum_l, int* sum_r)
 {
-    *sum = 0;
-    for (int i = pp.s / 2; i < pp.s; ++i) {
-        *sum += At(pp, i);
+    int half = pp.s / 2;
+    *sum_l = 0;
+    for (int i = 0; i < half; ++i) {
+        *sum_l += At(pp, i);
     }
-    return (*sum) % (pp.s / 2) == 0;
-}
-
-int mtd_is_sum_equal(mtd_arr pp)
-{
-    return 1;
+    *sum_r = 0;
+    for (int i = half; i < pp.s; ++i) {
+        *sum_r += At(pp, i);
+    }
+    return (*sum_l) % half == 0 || (*sum_r) % half == 0;
 }
 
 #ifndef RESEARCH
@@ -162,8 +189,7 @@ int main()
     int prev, angles_count, num_count;
     mtd_arr pp, saved, indexes;
     int res = scanf("%d", &angles_count);
-    int sum = 0;
-    int sum_eq;
+    int sum_l = 0, sum_r = 0;
 
     if (res != 1) {
         abort();
@@ -176,9 +202,53 @@ int main()
 
     pp = mtd_alloc(num_count);
     saved = mtd_alloc(num_count);
+
     indexes = mtd_alloc(angles_count);
     mtd_init_indexes(&indexes, angles_count);
     mtd_init(&pp, num_count);
+
+    do {
+        /* list of num_count - 2 elem */
+        // mtd_print_sep(pp);
+        // if (mtd_is_sum_dividable(pp, &sum_l, &sum_r)) {
+
+        // }
+        if (
+            mtd_is_sum_dividable(pp, &sum_l, &sum_r) /* && */
+            /* (mtd_rows_sum_equal_r(pp) || mtd_rows_sum_equal(pp)) */
+        ) {
+            mtd_print_sep(pp);
+            printf("  ");
+            printf("%d %d\n", sum_l % angles_count == 0, sum_r % angles_count == 0);
+            if (mtd_rows_sum_equal(pp)) {
+                mtd_print_sep(pp);
+                printf("  ");
+                printf("%d %d\n", sum_l % angles_count == 0, sum_r % angles_count == 0);
+            }
+            com_get_mirrored(pp.buf, pp.s);
+            if (mtd_rows_sum_equal(pp)) {
+                mtd_is_sum_dividable(pp, &sum_l, &sum_r);
+                mtd_print_sep(pp);
+                printf(" rrr ");
+                printf("%d %d\n", sum_l % angles_count == 0, sum_r % angles_count == 0);
+            }
+            com_get_mirrored_r(pp.buf, pp.s);
+            // com_reverse(pp.buf, 0, pp.s - 1);
+            // mtd_print_sep(pp);
+            // printf("\n");
+            // com_reverse(pp.buf, 0, pp.s - 1);
+        } else {
+            printf("skip ");
+            mtd_print_sep(pp);
+            printf("\n");
+        }
+        // if (mtd_is_sum_dividable(pp, &sum) && mtd_rows_sum_equal(pp)) {
+        //     mtd_print_sep(pp);
+        //     printf("  ");
+        //     printf("%d\n", sum);
+        // }
+    } while (next_perm(pp.buf + 1, num_count - 1));
+    return 0;
 
     do {
         // mtd_print(indexes);
@@ -188,31 +258,33 @@ int main()
            check sum for first 3 part, then for second
            store to array, then sort
         */
-        mtd_get_comb(indexes, num_count, &pp);
-        if (mtd_is_sum_dividable(pp, &sum)) {
-            mtd_print_sep(pp);
-            printf("  ");
-            printf("%d\n", sum);
-        }
+        // mtd_get_comb(indexes, num_count, &pp);
+        // // printf("\n");
+        // if (mtd_is_sum_dividable(pp, &sum)) {
+        //     mtd_print_sep(pp);
+        //     printf("  ");
+        //     printf("%d\n", sum);
+        // }
+        // mtd_print(indexes);
     } while (mtd_next_indexes(indexes, num_count));
     return 0;
 
-    do {
-        sum = mtd_triangle_sum(pp);
-        sum_eq = mtd_rows_sum_equal(pp);
-        if (sum_eq/*  || sum % angles_count == 0 */) {
-            mtd_rows_print(pp);
-            if (sum_eq) {
-                printf("+ ");
-            } else {
-                printf("- ");
-            }
-            printf("sum = %d; ", sum);
-            mtd_print(pp);
-            printf("\n");
-        }
-    } while(next_perm(pp.buf, pp.s));
-    return 0;
+    // do {
+    //     sum = mtd_triangle_sum(pp);
+    //     sum_eq = mtd_rows_sum_equal(pp);
+    //     if (sum_eq/*  || sum % angles_count == 0 */) {
+    //         mtd_rows_print(pp);
+    //         if (sum_eq) {
+    //             printf("+ ");
+    //         } else {
+    //             printf("- ");
+    //         }
+    //         printf("sum = %d; ", sum);
+    //         mtd_print(pp);
+    //         printf("\n");
+    //     }
+    // } while(next_perm(pp.buf, pp.s));
+    // return 0;
 
     prev = At(pp, 0);
     do {

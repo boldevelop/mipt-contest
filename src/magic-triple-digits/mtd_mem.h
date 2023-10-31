@@ -4,6 +4,7 @@
 #define At(arr, i) arr.buf[(i)]
 
 typedef struct {
+    /* TODO: unsgined char */
     int* buf;
     /* size */
     int s;
@@ -14,6 +15,8 @@ typedef struct {
 mtd_arr mtd_alloc(int capacity);
 void mtd_push(mtd_arr* arr, int v);
 void mtd_free(mtd_arr arr);
+
+
 
 #ifdef RESEARCH
 typedef struct {

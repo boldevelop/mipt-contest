@@ -2,6 +2,7 @@
 #include <limits.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "combinatorics.h"
 #include "mtd_mem.h"
@@ -9,7 +10,15 @@
 void mtd_print(mtd_arr pp)
 {
     for (int i = 0; i < pp.s; ++i) {
-        printf("%d", At(pp, i) + 1);
+        printf("%d", At(pp, i));
+    }
+    printf("\n");
+}
+
+void mtd_print_i(mtd_arr pp)
+{
+    for (int i = 0; i < pp.s; ++i) {
+        printf("%d", At(pp, i));
     }
     printf("\n");
 }
@@ -130,7 +139,7 @@ int mtd_is_cyclic_permutations(mtd_arr pp, mtd_arr saved)
 void mtd_init_indexes(mtd_arr * indexes, int angles_count)
 {
     for (int i = 0; i < angles_count; ++i) {
-        mtd_push(indexes, i);
+        mtd_push(indexes, i + 1);
     }
 }
 
@@ -140,7 +149,7 @@ int mtd_next_indexes(mtd_arr indexes, int num_count) {
         return 1;
     }
 
-    for (int i = indexes.s - 2; i >= 1; i--) {
+    for (int i = indexes.s - 2; i >= 0; i--) {
         if (At(indexes, i) == At(indexes, i + 1) - 1) {
             continue;
         }
@@ -158,7 +167,7 @@ int mtd_next_indexes(mtd_arr indexes, int num_count) {
 
 void mtd_get_comb(mtd_arr indexes, int num_counts, mtd_arr* pp)
 {
-    int i = 0, j = num_counts / 2, n = 0;
+    int i = 1, j = num_counts / 2, n = 1;
     while (n != num_counts) {
         if (At(indexes, i) == n) {
             At((*pp), i++) = n + 1;
@@ -166,6 +175,28 @@ void mtd_get_comb(mtd_arr indexes, int num_counts, mtd_arr* pp)
             At((*pp), j++) = n + 1;
         }
         n++;
+    }
+
+    for (int i = 1; i < pp->s; ++i) {
+        if (i - 1 < indexes.s) {
+            At((*pp), i) = At((*pp), At(indexes, i - 1));
+        } else {
+
+        }
+    }
+}
+
+void get_comb(mtd_arr indexes, mtd_arr comb)
+{
+    int i = 0, j = comb.s / 2, n = 1;
+    At(comb, 0) = 1;
+    while (n != comb.s) {
+        if (i < indexes.s && At(indexes, i) == n) {
+            At(comb, i + 1) = ++n;
+            i++;
+        } else {
+            At(comb, j++) = ++n;
+        }
     }
 }
 
@@ -187,7 +218,7 @@ int mtd_is_sum_dividable(mtd_arr pp, int* sum_l, int* sum_r)
 int main()
 {
     int prev, angles_count, num_count;
-    mtd_arr pp, saved, indexes;
+    mtd_arr pp, saved, indexes, comb;
     int res = scanf("%d", &angles_count);
     int sum_l = 0, sum_r = 0;
 
@@ -202,10 +233,65 @@ int main()
 
     pp = mtd_alloc(num_count);
     saved = mtd_alloc(num_count);
+    comb = mtd_alloc(num_count);
 
-    indexes = mtd_alloc(angles_count);
-    mtd_init_indexes(&indexes, angles_count);
+    indexes = mtd_alloc(angles_count - 1);
+    mtd_init_indexes(&indexes, angles_count - 1);
     mtd_init(&pp, num_count);
+    mtd_init(&comb, num_count);
+
+    do {
+        get_comb(indexes, comb);
+        if (mtd_is_sum_dividable(comb, &sum_l, &sum_r)) {
+
+            do {
+                if (mtd_rows_sum_equal(comb)) {
+                    mtd_print_sep(comb);
+                    printf("  OK ");
+                    printf("%d %d\n", sum_l / angles_count, sum_r / angles_count);
+
+                    memcpy(pp.buf, comb.buf, comb.s * sizeof(int));
+                    next_perm(pp.buf + 1, pp.s / 2 - 1);
+                    next_perm(pp.buf + pp.s / 2, pp.s / 2);
+                    mtd_print_sep(pp);
+                    printf(" memcpy OK ");
+                    printf("%d %d\n", sum_l / angles_count, sum_r / angles_count);
+
+                    com_reverse(comb.buf, 0, comb.s - 1);
+                    mtd_is_sum_dividable(comb, &sum_l, &sum_r);
+                    mtd_print_sep(comb);
+                    printf(" r OK ");
+                    printf("%d %d\n", sum_l / angles_count, sum_r / angles_count);
+
+
+                    memcpy(pp.buf, comb.buf, comb.s * sizeof(int));
+            // com_get_mirrored(pp.buf, pp.s);
+                    next_perm(pp.buf + 1, pp.s / 2 - 1);
+                    next_perm(pp.buf + pp.s / 2, pp.s / 2);
+                    mtd_print_sep(pp);
+                    printf(" memcpy OK ");
+                    printf("%d %d\n", sum_l / angles_count, sum_r / angles_count);
+            // com_get_mirrored_r(pp.buf, pp.s);
+
+                    com_reverse(comb.buf, 0, comb.s - 1);
+                } else {
+                    mtd_print_sep(comb);
+                    printf(" skip ");
+                    printf("%d %d\n", sum_l / angles_count, sum_r / angles_count);
+                }
+                // break;
+            } while (next_perm(comb.buf + comb.s / 2, comb.s / 2));
+
+            // mtd_print_sep(comb);
+            // printf("  OK ");
+            // printf("%d %d\n", sum_l / angles_count, sum_r / angles_count);
+        } else {
+            printf("skip ");
+            mtd_print_sep(comb);
+            printf("\n");
+        }
+    } while (mtd_next_indexes(indexes, num_count));
+    return 0;
 
     do {
         /* list of num_count - 2 elem */
@@ -213,24 +299,27 @@ int main()
         // if (mtd_is_sum_dividable(pp, &sum_l, &sum_r)) {
 
         // }
-        if (
-            mtd_is_sum_dividable(pp, &sum_l, &sum_r) /* && */
-            /* (mtd_rows_sum_equal_r(pp) || mtd_rows_sum_equal(pp)) */
-        ) {
-            mtd_print_sep(pp);
-            printf("  ");
-            printf("%d %d\n", sum_l % angles_count == 0, sum_r % angles_count == 0);
+        if (mtd_is_sum_dividable(pp, &sum_l, &sum_r)) {
+
             if (mtd_rows_sum_equal(pp)) {
                 mtd_print_sep(pp);
-                printf("  ");
-                printf("%d %d\n", sum_l % angles_count == 0, sum_r % angles_count == 0);
+                printf("  OK ");
+                printf("%d %d\n", sum_l / angles_count, sum_r / angles_count);
+            } else {
+                mtd_print_sep(pp);
+                printf(" skip ");
+                printf("%d %d\n", sum_l / angles_count, sum_r / angles_count);
             }
             com_get_mirrored(pp.buf, pp.s);
             if (mtd_rows_sum_equal(pp)) {
                 mtd_is_sum_dividable(pp, &sum_l, &sum_r);
                 mtd_print_sep(pp);
-                printf(" rrr ");
-                printf("%d %d\n", sum_l % angles_count == 0, sum_r % angles_count == 0);
+                printf(" r OK ");
+                printf("%d %d\n", sum_l / angles_count, sum_r / angles_count);
+            } else {
+                mtd_print_sep(pp);
+                printf(" r skip ");
+                printf("%d %d\n", sum_l / angles_count, sum_r / angles_count);
             }
             com_get_mirrored_r(pp.buf, pp.s);
             // com_reverse(pp.buf, 0, pp.s - 1);

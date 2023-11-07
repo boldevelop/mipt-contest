@@ -1,7 +1,7 @@
 CC = gcc
-CFLAGS = -Wall -Werror=declaration-after-statement -O2 -std=gnu11 -lm -g
+# CFLAGS = -Wall -Werror=declaration-after-statement -O2 -std=gnu11 -lm -g
 CFLAGSD =
-# CFLAGS = -Wall -O0 -std=gnu11 -lm -g
+CFLAGS = -Wall -O0 -std=gnu11 -lm -g
 BUILD_DIR = ./build
 BIN_DIR = ./bin
 

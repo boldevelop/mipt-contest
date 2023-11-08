@@ -127,17 +127,39 @@ int *init_s(mtd_arr comb) {
     return s;
 }
 
+void get_next_answer(int* f, int* s, int n) {
+    com_reverse(f, 1, n - 1);
+    com_reverse(s, 0, 1);
+    com_reverse(s, 2, n - 1);
+}
+
 void print_ptr(int* f, int* s, int n) {
     for (int i = 0; i < n; ++i) {
         printf("%d,%d,%d; ", f[i], s[i], s[(i + 1) % n]);
     }
     printf("\n");
 }
-
-void get_next_answer(int* f, int* s, int n) {
-    com_reverse(f, 1, n - 1);
-    com_reverse(s, 0, 1);
-    com_reverse(s, 2, n - 1);
+void print_comb(int* f, int *s, int n) {
+    for (int i = 0; i < n; ++i) {
+        printf("%d,", f[i]);
+    }
+    printf(" ");
+    for (int i = 0; i < n; ++i) {
+        printf("%d,", s[i]);
+    }
+    printf("\n");
+}
+void print_answer(int* f, int *s, int n) {
+    print_ptr(f, s, n);
+    get_next_answer(f, s, n);
+    print_ptr(f, s, n);
+}
+void print_answer_d(int* f, int *s, int n) {
+    print_ptr(f, s, n);
+    print_comb(f, s, n);
+    get_next_answer(f, s, n);
+    print_ptr(f, s, n);
+    print_comb(f, s, n);
 }
 
 int try_get_answer(mtd_arr comb) {
@@ -148,9 +170,7 @@ int try_get_answer(mtd_arr comb) {
     do {
         do {
             if (is_sum_equal(f, s, n)) {
-                print_ptr(f, s, n);
-                get_next_answer(f, s, n);
-                print_ptr(f, s, n);
+                print_answer_d(f, s, n);
                 next = 1;
                 break;
             }
@@ -169,9 +189,7 @@ int try_get_answer(mtd_arr comb) {
     do {
         do {
             if (is_sum_equal(f, s, n)) {
-                print_ptr(f, s, n);
-                get_next_answer(f, s, n);
-                print_ptr(f, s, n);
+                print_answer_d(f, s, n);
 
                 return 1;
             }
@@ -184,9 +202,12 @@ int try_get_answer(mtd_arr comb) {
     return 0;
 }
 
+void slow_solution(mtd_arr numbers, mtd_arr comb_ind, int num_count);
+void try_one_comb();
+
 int main() {
     int angles_count, num_count;
-    mtd_arr numbers, comb_ind;
+    mtd_arr comb, comb_ind;
     int res = scanf("%d", &angles_count);
 
     if (res != 1) {
@@ -198,23 +219,76 @@ int main() {
     }
 
     num_count = angles_count * 2;
-    numbers = mtd_alloc(num_count);
+    comb = mtd_alloc(num_count);
     comb_ind = mtd_alloc(angles_count - 1);
 
     mtd_init_indexes(&comb_ind, angles_count - 1);
-    mtd_init(&numbers, num_count); // todo replace
+    mtd_init(&comb, num_count); // todo replace
 
+    solution(comb, comb_ind, num_count);
+
+    return 0;
+}
+
+void try_one_comb() {
+    int n = 6;
+    int f[6] = {1, 2, 3, 4, 5, 9};
+    int s[6] = {6, 7, 8, 10, 11, 12};
+    int ss[6] = {6, 7, 8, 10, 11, 12};
+    do {
+        int found = 0;
+        do {
+            if (is_sum_equal(f, s, n)) {
+                print_ptr(f, s, n);
+                print_comb(f, s, n);
+                // print_answer_d(f, s, n);
+                // get_next_answer(f, s, n);
+                // found = 1;
+                // break;
+            }
+        } while (next_perm(s, n));
+        memcpy(s, ss, n * sizeof(int));
+        if (found) {
+            break;
+        }
+    } while (next_perm(f + 1, n - 1));
+}
+
+void try_comb(mtd_arr comb, int* f, int* s) {
+    int n = comb.s / 2;
+    memcpy(f, comb.buf, n * sizeof(int));
+    memcpy(s, comb.buf + n, n * sizeof(int));
+    do {
+        do {
+            if (is_sum_equal(f, s, n)) {
+                print_comb(f, s, n);
+            }
+        } while (next_perm(s, n));
+        memcpy(s, comb.buf + n, n * sizeof(int));
+    } while (next_perm(f + 1, n - 1));
+
+    memcpy(f, comb.buf, n * sizeof(int));
+
+    do {
+        do {
+            if (is_sum_equal(s, f, n)) {
+                print_comb(s, f, n);
+            }
+        } while (next_perm(f, n));
+        memcpy(f, comb.buf, n * sizeof(int));
+    } while (next_perm(s + 1, n - 1));
+}
+
+void slow_solution(mtd_arr numbers, mtd_arr comb_ind, int num_count)
+{
+    int n = numbers.s / 2;
+    int*f = malloc(n * sizeof(int));
+    int*s = malloc(n * sizeof(int));
     do {
         get_comb(comb_ind, numbers);
         if (!is_satisfy(numbers)) {
             continue;
         }
-        try_get_answer(numbers);
-        // if (!try_get_answer(numbers)) {
-        //     mtd_print_sep(numbers);
-        //     printf("\n");
-        // }
-
+        try_comb(numbers, f, s);
     } while (mtd_next_indexes(comb_ind, num_count));
-    return 0;
 }

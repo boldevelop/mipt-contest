@@ -1,3 +1,5 @@
+#include "combinatorics.h"
+
 static void com_swap(int *p, int l, int r)
 {
     int t = p[l];
@@ -5,30 +7,12 @@ static void com_swap(int *p, int l, int r)
     p[r] = t;
 }
 
-void com_reverse(int *p, int l, int r)
+static void com_reverse(int *p, int l, int r)
 {
     while (l < r) {
         com_swap(p, l, r);
         l++;
         r--;
-    }
-}
-
-void com_get_mirrored(int *p, int s)
-{
-    int half = s / 2;
-    for (int i = 0; i < half; ++i) {
-        com_swap(p, i, i + half);
-    }
-    com_reverse(p, half, s - 1);
-}
-
-void com_get_mirrored_r(int *p, int s)
-{
-    int half = s / 2;
-    com_reverse(p, half, s - 1);
-    for (int i = 0; i < half; ++i) {
-        com_swap(p, i, i + half);
     }
 }
 

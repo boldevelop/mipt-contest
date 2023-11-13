@@ -5,7 +5,7 @@ CFLAGSD =
 BUILD_DIR = ./build
 BIN_DIR = ./bin
 
-SRC = main combinatorics mtd_mem
+SRC = main combinatorics
 OBJS = $(SRC:%=$(BUILD_DIR)/%.o)
 
 all: mtd
@@ -19,7 +19,6 @@ mtd:
 	@mkdir -p $(BIN_DIR)
 	$(CC) $(CFLAGS) -c main.c -o $(BUILD_DIR)/main.o
 	$(CC) $(CFLAGS) -c combinatorics.c -o $(BUILD_DIR)/combinatorics.o
-	$(CC) $(CFLAGS) -c mtd_mem.c -o $(BUILD_DIR)/mtd_mem.o
 	$(CC) $(OBJS) -o $(BIN_DIR)/$@
 
 $(BUILD_DIR)/%.o: %.c

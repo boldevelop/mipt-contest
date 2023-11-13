@@ -4,6 +4,7 @@
     complexity: O(2 * a(n) * P(n-1) * P(n) * n )
 
     Берем все сочетания из n по 2n: C(n, 2n)
+    Но в программе считаем C(n - 1, 2n - 1), так как фиксирум единицу [1, [...n - 1], ...2n]
     Для каждого сочетания проверяем условие: "Сумма первых n делится на n" (1)
     Для тех сочетаний, которые удовлетворяют условию (1)
     считаем n - 1 перестановок (первое число не берем) для первых n чисел (2)
@@ -23,68 +24,16 @@
 #include <assert.h>
 
 #include "combinatorics.h"
-#include "mtd_mem.h"
 
-void mtd_init(mtd_arr * pp, const int s)
-{
-    for (int i = 0; i < s; ++i) {
-        mtd_push(pp, i + 1);
-    }
-}
-
-void mtd_init_indexes(mtd_arr * indexes, const int angles_count)
-{
-    for (int i = 0; i < angles_count; ++i) {
-        mtd_push(indexes, i + 1);
-    }
-}
-
-int mtd_next_indexes(mtd_arr indexes, const int num_count)
-{
-    if (At(indexes, indexes.s - 1) != num_count - 1) {
-        At(indexes, indexes.s - 1)++;
-        return 1;
-    }
-
-    for (int i = indexes.s - 2; i >= 0; i--) {
-        if (At(indexes, i) == At(indexes, i + 1) - 1) {
-            continue;
-        }
-
-        At(indexes, i)++;
-        for (int j = i + 1; j < indexes.s; ++j) {
-            At(indexes, j) = At(indexes, j - 1) + 1;
-        }
-
-        return 1;
-    }
-
-    return 0;
-}
-
-int is_satisfy(const mtd_arr comb)
+int is_satisfy(const int *numbers, const int half)
 {
     int sum = 0;
-    int half = comb.s / 2;
     for (int i = 0; i < half; ++i) {
-        sum += At(comb, i);
+        sum += numbers[i];
     }
     return sum % half == 0;
 }
 
-void get_comb(const mtd_arr indexes, mtd_arr comb)
-{
-    int i = 0, j = comb.s / 2, n = 1;
-    At(comb, 0) = 1;
-    while (n != comb.s) {
-        if (i < indexes.s && At(indexes, i) == n) {
-            At(comb, i + 1) = ++n;
-            i++;
-        } else {
-            At(comb, j++) = ++n;
-        }
-    }
-}
 
 int is_sum_equal(const int *f, const int *s, const int n)
 {
@@ -121,21 +70,24 @@ void print_solution(const int *f, const int *s, const int n)
     printf("\n");
 }
 
-void try_comb(const mtd_arr comb, int *f, int *s)
+void try_comb(const Combination comb, int *f, int *s)
 {
     int n = comb.s / 2;
-    memcpy(f, comb.buf, n * sizeof(int));
-    memcpy(s, comb.buf + n, n * sizeof(int));
+    int *buf = comb.comb;
+    int bytes = n * sizeof(int);
+
+    memcpy(f, buf, bytes);
+    memcpy(s, buf + n, bytes);
     do {
         do {
             if (is_sum_equal(f, s, n)) {
                 print_solution(f, s, n);
             }
         } while (next_perm(s, n));
-        memcpy(s, comb.buf + n, n * sizeof(int));
+        memcpy(s, buf + n, bytes);
     } while (next_perm(f + 1, n - 1));
 
-    memcpy(f, comb.buf, n * sizeof(int));
+    memcpy(f, buf, bytes);
 
     do {
         do {
@@ -143,32 +95,16 @@ void try_comb(const mtd_arr comb, int *f, int *s)
                 print_solution(s, f, n);
             }
         } while (next_perm(f, n));
-        memcpy(f, comb.buf, n * sizeof(int));
+        memcpy(f, buf, bytes);
     } while (next_perm(s + 1, n - 1));
-}
-
-void solution(mtd_arr comb, mtd_arr comb_ind, const int num_count)
-{
-    int n = comb.s / 2;
-    int *f = malloc(n * sizeof(int));
-    int *s = malloc(n * sizeof(int));
-
-    do {
-        get_comb(comb_ind, comb);
-        if (!is_satisfy(comb)) {
-            continue;
-        }
-        try_comb(comb, f, s);
-    } while (mtd_next_indexes(comb_ind, num_count));
-
-    free(f);
-    free(s);
 }
 
 int main()
 {
     int angles_count, num_count;
-    mtd_arr comb, comb_ind;
+    int *f;
+    int *s;
+    Combination comb;
     int res = scanf("%d", &angles_count);
     num_count = angles_count * 2;
 
@@ -180,16 +116,20 @@ int main()
         abort();
     }
 
-    comb = mtd_alloc(num_count);
-    comb_ind = mtd_alloc(angles_count - 1);
+    comb = init_combination(angles_count, num_count);
+    f = malloc(angles_count * sizeof(int));
+    s = malloc(angles_count * sizeof(int));
 
-    mtd_init_indexes(&comb_ind, angles_count - 1);
-    mtd_init(&comb, num_count);
+    do {
+        if (!is_satisfy(comb.comb, angles_count)) {
+            continue;
+        }
+        try_comb(comb, f, s);
+    } while (next_combination(comb));
 
-    solution(comb, comb_ind, num_count);
-
-    mtd_free(comb);
-    mtd_free(comb_ind);
+    free(f);
+    free(s);
+    free_combination(comb);
 
     return 0;
 }

@@ -4,7 +4,7 @@ LDFLAGS = -lm
 BUILD_DIR = ./build
 BIN_DIR = ./bin
 
-SRC = pn se ts ps gf cc
+SRC = pn se ts ps gf cc lm bp bi pe ft pf
 
 all: $(SRC)
 $(SRC):

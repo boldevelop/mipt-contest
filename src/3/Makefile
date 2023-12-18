@@ -1,10 +1,10 @@
 CC = gcc
-CFLAGS = -Wall -Werror=maybe-uninitialized -Werror=declaration-after-statement -O0 -std=gnu11 -g -DDEBUG
+CFLAGS = -Wall -Wextra -Wpedantic -Werror=maybe-uninitialized -Werror=declaration-after-statement -O0 -std=gnu11 -g -DDEBUG
 LDFLAGS = -lm
 BUILD_DIR = ./build
 BIN_DIR = ./bin
 
-SRC = mm fy si sse
+SRC = mm fy si sse cse scb sq ms mp
 
 all: $(SRC)
 $(SRC):

@@ -24,18 +24,20 @@ stress-bin:
 run: all
 	$(BIN_DIR)/main
 
-run8: all
-	$(BIN_DIR)/main < ./in/8
+run5: all
+	$(BIN_DIR)/main < ./in/5
 
 test: all
-	$(BIN_DIR)/main < ./in/4
-	$(BIN_DIR)/main < ./in/8
-	$(BIN_DIR)/main < ./in/32
+	$(BIN_DIR)/main < ./in/2
+	$(BIN_DIR)/main < ./in/3
+	$(BIN_DIR)/main < ./in/5
 
 valgrind: all
-	valgrind $(BIN_DIR)/main < ./in/4
-	valgrind $(BIN_DIR)/main < ./in/8
-	valgrind $(BIN_DIR)/main < ./in/32
+	valgrind $(BIN_DIR)/main < ./in/2
+	@echo "- - -"
+	valgrind $(BIN_DIR)/main < ./in/3
+	@echo "- - -"
+	valgrind $(BIN_DIR)/main < ./in/5
 
 gdb: all
 	gdb $(BIN_DIR)/main

@@ -13,7 +13,7 @@
 typedef unsigned long long ull;
 typedef struct {
     /* buf[0] - младший a0, an*x^n + ... + a0 */
-    ull * buf;
+    ull *buf;
     int s;
 } Poly;
 
@@ -22,9 +22,10 @@ void read_poly(Poly * p);
 void dump_arr(ull * arr, const int s);
 ull *alloc_arr(const int s);
 Poly alloc_mult_poly(Poly * l, Poly * r);
-Poly alloc_sum_poly(Poly * l, Poly * r);
+void alloc_sum_poly(Poly * l, Poly * r, Poly * A1pA2, Poly * B1pB2,
+                    int half_degree);
 void free_poly(Poly * p);
-void divide_poly(Poly * p, Poly * out1, Poly * out2, int degree);
+void divide_poly(Poly * p, Poly * out1, Poly * out2, int half_degree);
 
 void naive_mult(Poly * l, Poly * r, Poly * out)
 {
@@ -46,58 +47,53 @@ void dump_poly(Poly * p)
 
 void mult(Poly * l, Poly * r, Poly * out)
 {
-    int deg = l->s;
-    Poly A1, A2, B1, B2;
-    /* allocated poly */
-    Poly A1B1, A2B2, A1pA2, B1pB2, A1pA2mB1pB2;
+    int degree = l->s, half_degree = l->s / 2;
+    ull *out1, *out2, *out3, *out4;
+    ull *sum1, *sum2;
+    Poly A1, A2, B1, B2, A1B1, A2B2;
 
-    if (deg < DEGRADATION_TO_NAIVE) {
+    /* allocated poly */
+    Poly A1pA2, B1pB2, A1pA2mB1pB2;
+
+    if (degree < DEGRADATION_TO_NAIVE) {
         naive_mult(l, r, out);
         return;
     }
 
     /* A1, A2, B1, B2 */
-    divide_poly(l, &A1, &A2, deg);
-    divide_poly(r, &B1, &B2, deg);
+    divide_poly(l, &A1, &A2, half_degree);
+    divide_poly(r, &B1, &B2, half_degree);
 
     /* A1B1 */
-    A1B1 = alloc_mult_poly(&A1, &B1);
+    A1B1.s = degree;
+    A1B1.buf = out->buf + degree;
     mult(&A1, &B1, &A1B1);
 
     /* A2B2 */
-    A2B2 = alloc_mult_poly(&A2, &B2);
+    A2B2.s = degree;
+    A2B2.buf = out->buf;
     mult(&A2, &B2, &A2B2);
 
     /* A1pA2mB1pB2 */
-    A1pA2 = alloc_sum_poly(&A1, &A2);
-    B1pB2 = alloc_sum_poly(&B1, &B2);
+    alloc_sum_poly(l, r, &A1pA2, &B1pB2, half_degree);
     A1pA2mB1pB2 = alloc_mult_poly(&A1pA2, &B1pB2);
     mult(&A1pA2, &B1pB2, &A1pA2mB1pB2);
 
-    // for (int i = 0; i < A1B1.s; ++i) {
-    //     assert(i + deg < out->s);
-    //     out->buf[i + deg] += A1B1.buf[i];
-    // }
-    // for (int i = 0; i < A1B1.s; ++i) {
-    //     assert(i + deg / 2 < out->s);
-    //     out->buf[i + deg / 2] +=
-    //         A1pA2mB1pB2.buf[i] - A1B1.buf[i] - A2B2.buf[i];
-    // }
-    // for (int i = 0; i < A2B2.s; ++i)
-    //     out->buf[i] += A2B2.buf[i];
+    sum1 = A1pA2mB1pB2.buf;
+    sum2 = A1pA2mB1pB2.buf + half_degree;
 
-    for (int i = 0; i < A1B1.s; ++i) {
-        assert(i + deg < out->s);
-        out->buf[i + deg] += A1B1.buf[i];
+    out1 = out->buf;
+    out2 = out->buf + half_degree;
+    out3 = out->buf + 2 * half_degree;
+    out4 = out->buf + 3 * half_degree;
 
-        assert(i + deg / 2 < out->s);
-        out->buf[i + deg / 2] +=
-            A1pA2mB1pB2.buf[i] - A1B1.buf[i] - A2B2.buf[i];
-        out->buf[i] += A2B2.buf[i];
+    for (int i = 0; i < half_degree; i++) {
+        ull c1 = out2[i] + sum1[i] - out1[i] - out3[i];
+        ull c2 = out3[i] + sum2[i] - out2[i] - out4[i];
+        out->buf[half_degree + i] = c1;
+        out->buf[degree + i] = c2;
     }
 
-    free_poly(&A1B1);
-    free_poly(&A2B2);
     free_poly(&A1pA2);
     free_poly(&B1pB2);
     free_poly(&A1pA2mB1pB2);
@@ -126,33 +122,26 @@ int main()
     free_poly(&right_p);
 }
 
-Poly alloc_sum_poly(Poly * l, Poly * r)
+void alloc_sum_poly(Poly * l, Poly * r, Poly * A1pA2, Poly * B1pB2,
+                    int half_degree)
 {
-    Poly out;
-    int i = 0;
-    out.s = l->s > r->s ? l->s : r->s;
-    out.buf = alloc_arr(out.s);
+    A1pA2->s = half_degree;
+    A1pA2->buf = alloc_arr(half_degree);
+    B1pB2->s = half_degree;
+    B1pB2->buf = alloc_arr(half_degree);
 
-    while (i < out.s) {
-        if (i < l->s) {
-            out.buf[i] += l->buf[i];
-        }
-        if (i < r->s) {
-            out.buf[i] += r->buf[i];
-        }
-        i++;
+    for (int i = 0; i < half_degree; ++i) {
+        A1pA2->buf[i] = l->buf[i] + l->buf[i + half_degree];
+        B1pB2->buf[i] = r->buf[i] + r->buf[i + half_degree];
     }
-    return out;
 }
 
-void divide_poly(Poly * p, Poly * out1, Poly * out2, int degree)
+void divide_poly(Poly * p, Poly * out1, Poly * out2, int half_degree)
 {
-    degree /= 2;
-    assert(p->s - degree > 0);
-    out1->s = p->s - degree;
-    out1->buf = p->buf + degree;
+    out1->s = half_degree;
+    out1->buf = p->buf + half_degree;
 
-    out2->s = degree;
+    out2->s = half_degree;
     out2->buf = p->buf;
 }
 
@@ -173,7 +162,7 @@ void free_poly(Poly * p)
 Poly alloc_mult_poly(Poly * l, Poly * r)
 {
     Poly out;
-    out.s = l->s + r->s - 1;
+    out.s = l->s + r->s;
     out.buf = alloc_arr(out.s);
     return out;
 }

@@ -4,7 +4,7 @@ LDFLAGS = -lm
 BUILD_DIR = ./build
 BIN_DIR = ./bin
 
-SRC = mm fy si sse cse scb sq ms mp
+SRC = mm fy si sse cse scb sq ms mp me scp rs
 
 all: $(SRC)
 $(SRC):

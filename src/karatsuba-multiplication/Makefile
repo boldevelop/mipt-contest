@@ -5,49 +5,67 @@ LDFLAGS = -lm
 BUILD_DIR = ./build
 BIN_DIR = ./bin
 
-SRC = main
+BIN_NAME = kmp
 
-all: $(SRC)
-$(SRC):
+SRC = main polynom mem io
+OBJS = $(SRC:%=$(BUILD_DIR)/%.o)
+
+all: kmp
+
+kmp:
 	@mkdir -p $(BUILD_DIR)
 	@mkdir -p $(BIN_DIR)
-	$(CC) $(CFLAGS) $@.c -o $(BIN_DIR)/$@ $(LDFLAGS)
+	$(CC) $(CFLAGS) -c main.c -o $(BUILD_DIR)/main.o
+	$(CC) $(CFLAGS) -c polynom.c -o $(BUILD_DIR)/polynom.o
+	$(CC) $(CFLAGS) -c mem.c -o $(BUILD_DIR)/mem.o
+	$(CC) $(CFLAGS) -c io.c -o $(BUILD_DIR)/io.o
+	$(CC) $(OBJS) -o $(BIN_DIR)/$@ $(LDFLAGS)
+
+kmp-stress:
+	@mkdir -p $(BUILD_DIR)
+	@mkdir -p $(BIN_DIR)
+	$(CC) $(CFLAG_STRESS) -c main.c -o $(BUILD_DIR)/main.o
+	$(CC) $(CFLAG_STRESS) -c polynom.c -o $(BUILD_DIR)/polynom.o
+	$(CC) $(CFLAG_STRESS) -c mem.c -o $(BUILD_DIR)/mem.o
+	$(CC) $(CFLAG_STRESS) -c io.c -o $(BUILD_DIR)/io.o
+	$(CC) $(OBJS) -o $(BIN_DIR)/$@ $(LDFLAGS)
+
+run: kmp
+	$(BIN_DIR)/$(BIN_NAME)
+
+run5: kmp
+	$(BIN_DIR)/$(BIN_NAME) < ./in/5
+
+test: kmp
+	$(BIN_DIR)/$(BIN_NAME) < ./in/2 > ./bin/2.out
+	diff ./out/2 ./bin/2.out
+	$(BIN_DIR)/$(BIN_NAME) < ./in/3 > ./bin/3.out
+	diff ./out/3 ./bin/3.out
+	$(BIN_DIR)/$(BIN_NAME) < ./in/5 > ./bin/5.out
+	diff ./out/5 ./bin/5.out
+
+valgrind: kmp
+	valgrind $(BIN_DIR)/$(BIN_NAME) < ./in/2
+	@echo "- - -"
+	valgrind $(BIN_DIR)/$(BIN_NAME) < ./in/3
+	@echo "- - -"
+	valgrind $(BIN_DIR)/$(BIN_NAME) < ./in/5
+
+gdb: kmp
+	gdb $(BIN_DIR)/$(BIN_NAME)
+
+
+STRESS_D = 18
+stress-input:
+	@mkdir -p $(BUILD_DIR)
+	@mkdir -p $(BIN_DIR)
+	python3 ./make-test.py $(STRESS_D)
+
+stress: stress-input kmp-stress
+	time $(BIN_DIR)/kmp-stress < ./bin/$(STRESS_D) > /dev/null
 
 lint:
 	VERSION_CONTROL=none indent ./*.c -kr -as --no-tabs
-
-stress-bin:
-	@mkdir -p $(BUILD_DIR)
-	@mkdir -p $(BIN_DIR)
-	$(CC) $(CFLAG_STRESS) main.c -o $(BIN_DIR)/main-stress $(LDFLAGS)
-
-run: all
-	$(BIN_DIR)/main
-
-run5: all
-	$(BIN_DIR)/main < ./in/5
-
-test: all
-	$(BIN_DIR)/main < ./in/2
-	$(BIN_DIR)/main < ./in/3
-	$(BIN_DIR)/main < ./in/5
-
-valgrind: all
-	valgrind $(BIN_DIR)/main < ./in/2
-	@echo "- - -"
-	valgrind $(BIN_DIR)/main < ./in/3
-	@echo "- - -"
-	valgrind $(BIN_DIR)/main < ./in/5
-
-gdb: all
-	gdb $(BIN_DIR)/main
-
-STRESS_D = 18
-make-test:
-	python3 ./make-test.py $(STRESS_D)
-
-stress: make-test stress-bin
-	time $(BIN_DIR)/main < ./bin/$(STRESS_D) > /dev/null
 
 clean:
 	rm -rf $(BIN_DIR)/*

@@ -4,7 +4,7 @@ LDFLAGS = -lm
 BUILD_DIR = ./build
 BIN_DIR = ./bin
 
-SRC = al rbs hl hl2 rng lr ipo spo is no
+SRC = al rbs hl hl2 rng lr ipo spo is no tt
 
 all: $(SRC)
 $(SRC):

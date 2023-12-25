@@ -1,3 +1,4 @@
+/* система факториалов */
 #include <stdio.h>
 #include <stdlib.h>
 

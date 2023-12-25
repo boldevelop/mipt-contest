@@ -66,6 +66,7 @@ stress: stress-input kmp-stress
 
 lint:
 	VERSION_CONTROL=none indent ./*.c -kr -as --no-tabs
+	VERSION_CONTROL=none indent ./*.h -kr -as --no-tabs
 
 clean:
 	rm -rf $(BIN_DIR)/*

@@ -1,3 +1,5 @@
+/*  вычисляет fib(x) по модулю m */
+
 #include <stdio.h>
 #include <stdlib.h>
 

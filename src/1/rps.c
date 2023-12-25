@@ -1,3 +1,5 @@
+/* сверхстепень a^^b */
+
 #include <stdlib.h>
 #include <stdio.h>
 

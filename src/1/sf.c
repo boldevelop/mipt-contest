@@ -1,3 +1,4 @@
+/* система чисел Фибоначчи */
 #include <stdio.h>
 #include <stdlib.h>
 

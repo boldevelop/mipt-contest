@@ -1,3 +1,5 @@
+/*  периоды Пизано
+    вычисление длины периода */
 #include <stdio.h>
 #include <stdlib.h>
 

@@ -1,73 +1,89 @@
+VPATH = $(BUILD_DIR):$(BIN_DIR)
+.DEFAULT_GOAL = kmp
+
 CC = gcc
-CFLAGS = -Wall -Wextra -Wpedantic -Werror=maybe-uninitialized -Werror=declaration-after-statement -O0 -std=gnu11 -g -DDEBUG
-CFLAG_STRESS = -Wall -Wextra -Wpedantic -Werror=maybe-uninitialized -Werror=declaration-after-statement -O2 -std=gnu11 -DDEBUG
+CFLAGS = -std=gnu11\
+	-Wall -Wextra -Wpedantic -Werror=maybe-uninitialized\
+	-Werror=declaration-after-statement -std=gnu11
 LDFLAGS = -lm
-BUILD_DIR = ./build
-BIN_DIR = ./bin
 
-BIN_NAME = kmp
+BUILD_DIR = build
+BIN_DIR = bin
 
-SRC = main polynom mem io
-OBJS = $(SRC:%=$(BUILD_DIR)/%.o)
+BIN_DEV = kmp-dev
 
-all: kmp
+obj := $(patsubst %.c,%.o,$(wildcard *.c))
 
-kmp:
-	@mkdir -p $(BUILD_DIR)
-	@mkdir -p $(BIN_DIR)
-	$(CC) $(CFLAGS) -c main.c -o $(BUILD_DIR)/main.o
-	$(CC) $(CFLAGS) -c polynom.c -o $(BUILD_DIR)/polynom.o
-	$(CC) $(CFLAGS) -c mem.c -o $(BUILD_DIR)/mem.o
-	$(CC) $(CFLAGS) -c io.c -o $(BUILD_DIR)/io.o
-	$(CC) $(OBJS) -o $(BIN_DIR)/$@ $(LDFLAGS)
+kmp: CFLAGS += -O2
+kmp: CFLAGS += -DNDEBUG
+kmp: cleanobj $(obj) | $(BIN_DIR)
+	$(CC) -o $(BIN_DIR)/kmp $(addprefix $(BUILD_DIR)/,$(obj)) $(LDFLAGS)
 
-kmp-stress:
-	@mkdir -p $(BUILD_DIR)
-	@mkdir -p $(BIN_DIR)
-	$(CC) $(CFLAG_STRESS) -c main.c -o $(BUILD_DIR)/main.o
-	$(CC) $(CFLAG_STRESS) -c polynom.c -o $(BUILD_DIR)/polynom.o
-	$(CC) $(CFLAG_STRESS) -c mem.c -o $(BUILD_DIR)/mem.o
-	$(CC) $(CFLAG_STRESS) -c io.c -o $(BUILD_DIR)/io.o
-	$(CC) $(OBJS) -o $(BIN_DIR)/$@ $(LDFLAGS)
+$(BIN_DEV): CFLAGS += -g
+$(BIN_DEV): CFLAGS += -O0
+$(BIN_DEV): CFLAGS += -DDEBUG
+$(BIN_DEV): $(obj) | $(BIN_DIR)
+	$(CC) -o $(BIN_DIR)/$@ $(addprefix $(BUILD_DIR)/,$(obj)) $(LDFLAGS)
 
-run: kmp
-	$(BIN_DIR)/$(BIN_NAME)
+kmp-stress: CFLAGS += -g
+kmp-stress: CFLAGS += -O2
+kmp-stress: CFLAGS += -DDEBUG
+kmp-stress: cleanobj $(obj) | $(BIN_DIR)
+	$(CC) -o $(BIN_DIR)/$@ $(addprefix $(BUILD_DIR)/,$(obj)) $(LDFLAGS)
 
-run5: kmp
-	$(BIN_DIR)/$(BIN_NAME) < ./in/5
+mem.o: mem.h
+io.o: io.h
+main.o: polynom.h io.h
+polynom.o: mem.h io.h polynom.h
 
-test: kmp
-	$(BIN_DIR)/$(BIN_NAME) < ./in/2 > ./bin/2.out
+%.o: %.c | $(BUILD_DIR)
+	$(CC) -c $< $(CFLAGS) -o $(BUILD_DIR)/$@
+
+#  ‘$<’ is just the first prerequisite
+
+run: $(BIN_DEV)
+	$(BIN_DIR)/$(BIN_DEV)
+
+run5: $(BIN_DEV)
+	$(BIN_DIR)/$(BIN_DEV) < ./in/5
+
+test: $(BIN_DEV)
+	$(BIN_DIR)/$(BIN_DEV) < ./in/2 > ./bin/2.out
 	diff ./out/2 ./bin/2.out
-	$(BIN_DIR)/$(BIN_NAME) < ./in/3 > ./bin/3.out
+	$(BIN_DIR)/$(BIN_DEV) < ./in/3 > ./bin/3.out
 	diff ./out/3 ./bin/3.out
-	$(BIN_DIR)/$(BIN_NAME) < ./in/5 > ./bin/5.out
+	$(BIN_DIR)/$(BIN_DEV) < ./in/5 > ./bin/5.out
 	diff ./out/5 ./bin/5.out
 
-valgrind: kmp
-	valgrind $(BIN_DIR)/$(BIN_NAME) < ./in/2
+valgrind: $(BIN_DEV)
+	valgrind $(BIN_DIR)/$(BIN_DEV) < ./in/2
 	@echo "- - -"
-	valgrind $(BIN_DIR)/$(BIN_NAME) < ./in/3
+	valgrind $(BIN_DIR)/$(BIN_DEV) < ./in/3
 	@echo "- - -"
-	valgrind $(BIN_DIR)/$(BIN_NAME) < ./in/5
+	valgrind $(BIN_DIR)/$(BIN_DEV) < ./in/5
 
-gdb: kmp
-	gdb $(BIN_DIR)/$(BIN_NAME)
-
+gdb: $(BIN_DEV)
+	gdb $(BIN_DIR)/$(BIN_DEV)
 
 STRESS_D = 18
-stress-input:
-	@mkdir -p $(BUILD_DIR)
-	@mkdir -p $(BIN_DIR)
+stress-input: | $(BIN_DIR)
 	python3 ./make-test.py $(STRESS_D)
 
 stress: stress-input kmp-stress
-	time $(BIN_DIR)/kmp-stress < ./bin/$(STRESS_D) > /dev/null
+	time $(BIN_DIR)/kmp-stress < $(BIN_DIR)/$(STRESS_D) > /dev/null
 
 lint:
 	VERSION_CONTROL=none indent ./*.c -kr -as --no-tabs
 	VERSION_CONTROL=none indent ./*.h -kr -as --no-tabs
 
-clean:
-	rm -rf $(BIN_DIR)/*
-	rm -rf $(BUILD_DIR)/*
+cleanobj:
+	rm -rf $(BUILD_DIR)
+
+clean: cleanobj
+	rm -rf $(BIN_DIR)
+
+$(BUILD_DIR):
+	mkdir $(BUILD_DIR)
+
+$(BIN_DIR):
+	mkdir $(BIN_DIR)

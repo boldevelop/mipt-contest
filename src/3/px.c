@@ -8,7 +8,7 @@
 
 #ifdef DEBUG
 #define N 3
-#endif  /* DEBUG */
+#endif                          /* DEBUG */
 
 typedef unsigned Mat[N];
 typedef unsigned long long ull;

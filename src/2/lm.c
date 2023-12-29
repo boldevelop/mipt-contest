@@ -38,7 +38,7 @@ ull lcm(ull a, ull b)
 int main()
 {
     ull n;
-    if (scanf("%lld", &n) != 1) {
+    if (scanf("%llu", &n) != 1) {
         abort();
     }
     printf("%lld \n", lcm(2, n));

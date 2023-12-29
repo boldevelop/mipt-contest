@@ -44,9 +44,9 @@ Tree *build(int inl, int inr, int *inorder, int prl, int prr,
 
     node = alloc_node(data);
     node->left =
-    build(inl, pos, inorder, pre_pos, pre_pos + ls, preorder, gpos);
+        build(inl, pos, inorder, pre_pos, pre_pos + ls, preorder, gpos);
     node->right =
-    build(pos + 1, inr, inorder, pre_pos + ls, pre_pos + ls + rs,
+        build(pos + 1, inr, inorder, pre_pos + ls, pre_pos + ls + rs,
               preorder, gpos);
     return node;
 }

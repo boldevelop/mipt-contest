@@ -18,7 +18,7 @@ Poly alloc_poly_arr(const ull * data, const int s)
     return p;
 }
 
-int poly_degree(Poly const * p)
+int poly_degree(Poly const *p)
 {
     int degree = 0;
     for (int i = p->s - 1; i >= 0; --i)
@@ -61,14 +61,14 @@ static Poly alloc_mult_poly(const int ls, const int rs)
     return out;
 }
 
-static void naive_mult_impl(Poly const* l, Poly const * r, Poly * out)
+static void naive_mult_impl(Poly const *l, Poly const *r, Poly * out)
 {
     for (int i = 0; i < l->s; ++i)
         for (int j = 0; j < r->s; ++j)
             out->buf[i + j] += l->buf[i] * r->buf[j];
 }
 
-Poly naive_mult(Poly const * l, Poly const * r)
+Poly naive_mult(Poly const *l, Poly const *r)
 {
     Poly out = alloc_mult_poly(l->s, r->s);
     naive_mult_impl(l, r, &out);
@@ -91,7 +91,7 @@ void free_poly(Poly * p)
     free(p->buf);
 }
 
-void dump_poly(Poly const * p)
+void dump_poly(Poly const *p)
 {
     int degree = poly_degree(p);
     dump_arr(p->buf, degree);
@@ -157,7 +157,7 @@ static int nearest_pow2(int n)
     return (int) pow(2, degree);;
 }
 
-static Poly copy_poly_data(Poly const * p, const int s)
+static Poly copy_poly_data(Poly const *p, const int s)
 {
     Poly res;
     res.s = s;
@@ -168,7 +168,7 @@ static Poly copy_poly_data(Poly const * p, const int s)
     return res;
 }
 
-Poly mult(Poly const * l, Poly const * r)
+Poly mult(Poly const *l, Poly const *r)
 {
     int ls = l->s, rs = r->s;
     int pow2 = 0;

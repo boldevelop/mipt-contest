@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-void dump_arr(ull * arr, const int s)
+void dump_arr(const ull * arr, const int s)
 {
     for (int i = 0; i < s; ++i) {
         printf("%lld ", arr[i]);

@@ -20,14 +20,11 @@ int main()
 
     left_s = read_int();
     right_s = read_int();
-    assert(left_s % 2 == 0);    /* pow of 2 */
-    assert(left_s == right_s);
 
     left_p = alloc_poly_io(left_s);
     right_p = alloc_poly_io(right_s);
 
-    res = alloc_mult_poly(&left_p, &right_p);
-    mult(&left_p, &right_p, &res);
+    res = mult(&left_p, &right_p);
 
     dump_poly(&res);
 

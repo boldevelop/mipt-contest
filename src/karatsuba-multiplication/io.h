@@ -4,6 +4,6 @@
 typedef unsigned long long ull;
 
 int read_int();
-void dump_arr(ull * arr, const int s);
+void dump_arr(const ull * arr, const int s);
 
 #endif

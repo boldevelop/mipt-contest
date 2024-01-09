@@ -24,11 +24,11 @@ int test_case(const ull * l, const int ls, const ull * r, const int rs)
 {
     Poly lp = alloc_poly_arr(l, ls);
     Poly rp = alloc_poly_arr(r, rs);
-    Poly naive_mp = alloc_mult_poly(&lp, &rp);
+    Poly naive_mp;
     Poly mp;
     int ok = 1;
 
-    naive_mult(&lp, &rp, &naive_mp);
+    naive_mp = naive_mult(&lp, &rp);
     mp = mult(&lp, &rp);
 
     if (!is_equal(naive_mp, mp)) {
@@ -99,12 +99,12 @@ int main()
     for (int i = 1; i < s; ++i) {
         for (int j = 0; j < s; ++j) {
             r[j] = 1;
-            test(l, i + 1, r, j + 1, &ok, &failed);
+            test(l, s, r, j + 1, &ok, &failed);
         }
 
         for (int j = 0; j < s - 1; ++j) {
             r[j] = 0;
-            test(l, i + 1, r, j + 1, &ok, &failed);
+            test(l, s, r, j + 1, &ok, &failed);
         }
         r[s - 1] = 0;
         l[i] = 1;

@@ -13,13 +13,12 @@ typedef struct {
 } Poly;
 
 Poly alloc_poly_io(const int s);
-Poly alloc_mult_poly(Poly * l, Poly * r);
 Poly alloc_poly_arr(const ull * data, const int s);
-Poly mult(Poly * l, Poly * r);
+Poly mult(Poly const * l, Poly const * r);
+Poly naive_mult(Poly const * l, Poly const * r);
 void free_poly(Poly * p);
-void dump_poly(Poly * p);
+void dump_poly(Poly const * p);
 
-int poly_degree(Poly * p);
-void naive_mult(Poly * l, Poly * r, Poly * out);
+int poly_degree(Poly const * p);
 
 #endif

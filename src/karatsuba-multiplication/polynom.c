@@ -7,7 +7,7 @@
 
 #include <math.h>
 
-Poly alloc_poly_arr(const ull * data, const int s)
+Poly alloc_poly_arr(const ull * const data, const int s)
 {
     Poly p;
     p.s = s;
@@ -18,7 +18,7 @@ Poly alloc_poly_arr(const ull * data, const int s)
     return p;
 }
 
-int poly_degree(Poly const *p)
+int poly_degree(Poly const *const p)
 {
     int degree = 0;
     for (int i = p->s - 1; i >= 0; --i)
@@ -29,8 +29,9 @@ int poly_degree(Poly const *p)
     return degree;
 }
 
-static void alloc_sum_poly(Poly * l, Poly * r, Poly * A1pA2, Poly * B1pB2,
-                           int half_degree)
+static void alloc_sum_poly(Poly const *const l, Poly const *const r,
+                           Poly * const A1pA2, Poly * const B1pB2,
+                           const int half_degree)
 {
     A1pA2->s = half_degree;
     A1pA2->buf = alloc_arr_ull(half_degree);
@@ -43,8 +44,8 @@ static void alloc_sum_poly(Poly * l, Poly * r, Poly * A1pA2, Poly * B1pB2,
     }
 }
 
-static void divide_poly(Poly * p, Poly * out1, Poly * out2,
-                        int half_degree)
+static void divide_poly(Poly const *const p, Poly * out1, Poly * out2,
+                        const int half_degree)
 {
     out1->s = half_degree;
     out1->buf = p->buf + half_degree;
@@ -61,14 +62,15 @@ static Poly alloc_mult_poly(const int ls, const int rs)
     return out;
 }
 
-static void naive_mult_impl(Poly const *l, Poly const *r, Poly * out)
+static void naive_mult_impl(Poly const *const l, Poly const *const r,
+                            Poly * out)
 {
     for (int i = 0; i < l->s; ++i)
         for (int j = 0; j < r->s; ++j)
             out->buf[i + j] += l->buf[i] * r->buf[j];
 }
 
-Poly naive_mult(Poly const *l, Poly const *r)
+Poly naive_mult(Poly const *const l, Poly const *const r)
 {
     Poly out = alloc_mult_poly(l->s, r->s);
     naive_mult_impl(l, r, &out);
@@ -86,18 +88,19 @@ Poly alloc_poly_io(const int s)
     return p;
 }
 
-void free_poly(Poly * p)
+void free_poly(Poly const *const p)
 {
     free(p->buf);
 }
 
-void dump_poly(Poly const *p)
+void dump_poly(Poly const *const p)
 {
     int degree = poly_degree(p);
     dump_arr(p->buf, degree);
 }
 
-static void mult_impl(Poly * l, Poly * r, Poly * out)
+static void mult_impl(Poly const *const l, Poly const *const r,
+                      Poly * const out)
 {
     int degree = l->s, half_degree = l->s / 2;
     ull *out1, *out2, *out3, *out4;
@@ -151,7 +154,7 @@ static void mult_impl(Poly * l, Poly * r, Poly * out)
     free_poly(&A1pA2mB1pB2);
 }
 
-static int nearest_pow2(int n)
+static int nearest_pow2(const int n)
 {
     double degree = ceil(log(n) / log(2));
     return (int) pow(2, degree);;
@@ -168,7 +171,7 @@ static Poly copy_poly_data(Poly const *p, const int s)
     return res;
 }
 
-Poly mult(Poly const *l, Poly const *r)
+Poly mult(Poly const *const l, Poly const *const r)
 {
     int ls = l->s, rs = r->s;
     int pow2 = 0;

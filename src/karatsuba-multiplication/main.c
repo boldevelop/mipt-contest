@@ -13,22 +13,22 @@
 
 int main()
 {
-    int left_s, right_s;
-    Poly left_p;
-    Poly right_p;
+    int ls, rs;
+    Poly lp;
+    Poly rp;
     Poly res;
 
-    left_s = read_int();
-    right_s = read_int();
+    ls = read_int();
+    rs = read_int();
 
-    left_p = alloc_poly_io(left_s);
-    right_p = alloc_poly_io(right_s);
+    lp = alloc_poly_io(ls);
+    rp = alloc_poly_io(rs);
 
-    res = mult(&left_p, &right_p);
+    res = mult(&lp, &rp);
 
     dump_poly(&res);
 
     free_poly(&res);
-    free_poly(&left_p);
-    free_poly(&right_p);
+    free_poly(&lp);
+    free_poly(&rp);
 }

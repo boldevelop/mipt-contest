@@ -32,20 +32,17 @@ void dump_arr(int *arr, const int s)
     printf("\n");
 }
 
-void swap(int *arr, const int i, const int j)
-{
-    int temp = arr[i];
-    arr[i] = arr[j];
-    arr[j] = temp;
-}
+#define SWP(arr, i, j) tmp = (arr)[(i)];\
+    (arr)[(i)] = (arr)[(j)];\
+    (arr)[(j)] = tmp;
 
 void fy_shuffle(int *arr, const int s)
 {
     int i = s;
-    int j;
+    int j, tmp;
     while (i-- > 1) {
         j = rand() % (i + 1);
-        swap(arr, j, i);
+        SWP(arr, j, i);
     }
 }
 

@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <assert.h>
 #include <string.h>
+#include <time.h>
 
 #define MAX_STACK_SIZE 85
 
@@ -281,18 +282,16 @@ void collapse_stack(Stack* st) {
     }
 }
 
-void ts(int* d) {
-    int N = 20;
-    int remains = N;
+void ts(int* d, const int s) {
+    int remains = s;
     int st = 0;
-    // int minrun = get_minrun(N);
-    int minrun = 2;
+    int minrun = get_minrun(s);
     Stack stack = {0};
 
     do {
         int rn = 0; /* natural run length */
         int rrl; /* run remains length */
-        find_run(d, st, N, &rn);
+        find_run(d, st, s, &rn);
 
         if (rn < minrun) {
             rrl = remains > minrun ? minrun : remains;
@@ -300,8 +299,8 @@ void ts(int* d) {
             rn = rrl;
         }
 
-        printf("run: ");
-        da(d, st, st + rn);
+        // printf("run: ");
+        // da(d, st, st + rn);
         assert(stack.s < MAX_STACK_SIZE);
         stack.d[stack.s] = (Run){ .d = d + st, .s = rn };
         stack.s++;
@@ -311,18 +310,76 @@ void ts(int* d) {
         st += rn;
         remains -= rn;
 
-        printf("rest: ");
-        da(d, st, N);
-        printf("\n");
+        // printf("rest: ");
+        // da(d, st, N);
+        // printf("\n");
 
     } while (remains > 0);
 
-    dstack(&stack);
+    // dstack(&stack);
     collapse_stack(&stack);
-    dstack(&stack);
-    da(d, 0, N);
+    // dstack(&stack);
+    // da(d, 0, N);
 }
 
+/* fy */
+#define SWP(arr, i, j) tmp = (arr)[(i)];\
+    (arr)[(i)] = (arr)[(j)];\
+    (arr)[(j)] = tmp;
+
+void fy_shuffle(int *arr, const int s)
+{
+    int i = s;
+    int j, tmp;
+    while (i-- > 1) {
+        j = rand() % (i + 1);
+        SWP(arr, j, i);
+    }
+}
+
+/* fy end */
+void iota(int * a, const int s) {
+    for (int i = 0; i < s; ++i) {
+        a[i] = i+1;
+    }
+}
+
+int is_equal(int const * a, int const * b, int s) {
+    for (int i = 0; i < s; ++i)
+        if (a[i] != b[i])
+            return 0;
+    return 1;
+}
+
+int intcmp(const void* a, const void* b) {
+    const int *x = a;
+    const int *y = b;
+    return *x - *y;
+}
+
+float measure_ts(int* arr, const int s)
+{
+    clock_t start, end;
+    float seconds;
+    start = clock();
+    ts(arr, s);
+    end = clock();
+    seconds = (float)(end - start) / CLOCKS_PER_SEC;
+    return seconds;
+}
+
+float measure_qs(int* arr, const int s)
+{
+    clock_t start, end;
+    float seconds;
+    start = clock();
+    qsort(arr, s, sizeof(int), intcmp);
+    end = clock();
+    seconds = (float)(end - start) / CLOCKS_PER_SEC;
+    return seconds;
+}
+
+/* TODO: galloping, add cmp and void** interface */
 int main() {
     int rn = 300, n = 2;
     // int minrun = get_minrun(rn);
@@ -333,7 +390,39 @@ int main() {
     };
     records_t r1 = init_records(rn, n);
     
-    ts(d);
+    ts(d, 20);
     da(d, 0, 20);
     free_records(r1);
+
+    {
+        int full_size = 1000000;
+        int *ts_arr = alloc_arri(full_size);
+        int *qs_arr = alloc_arri(full_size);
+        int s = 10;
+        float ts_s, qs_s;
+
+        iota(ts_arr, full_size);
+        iota(qs_arr, full_size);
+
+        while (s <= full_size) {
+            fy_shuffle(ts_arr, s);
+            fy_shuffle(qs_arr, s);
+
+            ts_s = measure_ts(ts_arr, s);
+            qs_s = measure_qs(qs_arr, s);
+
+            if (!is_equal(ts_arr, qs_arr, s)) {
+                printf("Not equal\n");
+            } else {
+                printf("size: %d. OK\n", s);
+                printf("ts: %fs\n", ts_s);
+                printf("qs: %fs\n", qs_s);
+            }
+        
+            s *= 10;
+        }
+
+        free(ts_arr);
+        free(qs_arr);
+    }
 }

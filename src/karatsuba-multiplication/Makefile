@@ -1,14 +1,13 @@
 BUILD_DIR = build
 BIN_DIR = bin
-TEST_DIR = test
 
-VPATH = $(BUILD_DIR):$(BIN_DIR):$(TEST_DIR)
+VPATH = $(BUILD_DIR):$(BIN_DIR)
 .DEFAULT_GOAL = kmp
 
 CC = gcc
 CFLAGS = -std=gnu11\
 	-Wall -Wextra -Wpedantic -Werror=maybe-uninitialized\
-	-Werror=declaration-after-statement -std=gnu11
+	-Werror=declaration-after-statement
 LDFLAGS = -lm
 
 BIN_DEV = kmp-dev

@@ -6,7 +6,8 @@
 
 #define MAX_STACK_SIZE 85
 
-int get_minrun(int n) {
+int get_minrun(int n)
+{
     int r = 0;
     while (n >= 64) {
         r |= n & 1;
@@ -16,27 +17,32 @@ int get_minrun(int n) {
 }
 
 struct Records {
-    int** r;
-    int rn; /* recorords (r) count */
-    int n; /* elems in (r) count */
+    int **r;
+    int rn;                     /* recorords (r) count */
+    int n;                      /* elems in (r) count */
 };
 typedef struct Records records_t;
 
-int* alloc_arri(int n) {
-    int * buf;
+int *alloc_arri(int n)
+{
+    int *buf;
     buf = calloc(n, sizeof(int));
-    if (!buf) abort();
+    if (!buf)
+        abort();
     return buf;
 }
 
-int** alloc_arrpi(int rn) {
-    int** buf;
-    buf = calloc(rn, sizeof(int*));
-    if (!buf) abort();
+int **alloc_arrpi(int rn)
+{
+    int **buf;
+    buf = calloc(rn, sizeof(int *));
+    if (!buf)
+        abort();
     return buf;
 }
 
-records_t init_records(int rn, int n) {
+records_t init_records(int rn, int n)
+{
     records_t r;
     r.rn = rn;
     r.n = n;
@@ -47,14 +53,16 @@ records_t init_records(int rn, int n) {
     return r;
 }
 
-void free_records(const records_t r) {
+void free_records(const records_t r)
+{
     for (int i = 0; i < r.rn; ++i) {
         free(r.r[i]);
     }
     free(r.r);
 }
 
-void dump_r(const records_t r) {
+void dump_r(const records_t r)
+{
     for (int i = 0; i < r.rn; ++i) {
         for (int j = 0; j < r.n; ++j)
             printf("%d ", r.r[i][j]);
@@ -62,7 +70,8 @@ void dump_r(const records_t r) {
     }
 }
 
-void fill_r(records_t r) {
+void fill_r(records_t r)
+{
     // int minrun = get_minrun(r.rn);
 
     for (int i = 0; i < r.rn; ++i) {
@@ -74,13 +83,15 @@ void fill_r(records_t r) {
 
 #define IFL(x, y) if ((x) < (y))
 
-void swap(int* d, int l, int r) {
+void swap(int *d, int l, int r)
+{
     int t = d[l];
     d[l] = d[r];
     d[r] = t;
 }
 
-void reverse(int* d, int st, int end) {
+void reverse(int *d, int st, int end)
+{
     end--;
     while (st < end) {
         swap(d, st, end);
@@ -95,7 +106,8 @@ void reverse(int* d, int st, int end) {
  * end: end of array
  * rn: count run
 */
-void find_run(int* d, int b, int end, int* rn) {
+void find_run(int *d, int b, int end, int *rn)
+{
     int desc = 0;
     int b_saved = b;
     if (b == end) {
@@ -118,7 +130,8 @@ void find_run(int* d, int b, int end, int* rn) {
         for (; b < end; ++b) {
             IFL(d[b], d[b - 1]) {
                 (*rn)++;
-            } else {
+            }
+            else {
                 break;
             }
         }
@@ -126,7 +139,8 @@ void find_run(int* d, int b, int end, int* rn) {
         for (; b < end; ++b) {
             IFL(d[b], d[b - 1]) {
                 break;
-            } else {
+            }
+            else {
                 (*rn)++;
             }
         }
@@ -136,7 +150,8 @@ void find_run(int* d, int b, int end, int* rn) {
     }
 }
 
-void da(int*d, int b, int e) {
+void da(int *d, int b, int e)
+{
     for (; b < e; ++b)
         printf("%d ", d[b]);
     printf("\n");
@@ -145,9 +160,10 @@ void da(int*d, int b, int e) {
 /**
  * stup: start unsorted position
  */
-void insertion_sort(int *d, int b, int end, int stup) {
+void insertion_sort(int *d, int b, int end, int stup)
+{
     for (int i = stup; i < end; ++i) {
-        int p = i; /* prev j index */
+        int p = i;              /* prev j index */
 
         for (int j = i - 1; j >= b; --j) {
             IFL(d[p], d[j]) {
@@ -162,7 +178,7 @@ void insertion_sort(int *d, int b, int end, int stup) {
 }
 
 struct run_t {
-    int* d;
+    int *d;
     int s;
 };
 typedef struct run_t Run;
@@ -173,18 +189,20 @@ struct stack_t {
 };
 typedef struct stack_t Stack;
 
-void dstack(Stack* st) {
+void dstack(Stack * st)
+{
     printf("Stack:\n");
     for (int i = st->s - 1; i >= 0; --i) {
-        Run* r = st->d + i;
+        Run *r = st->d + i;
         printf("%d: ", r->s);
         da(r->d, 0, r->s);
     }
 }
 
 /* merging top 2 stack elements */
-void merge(Stack* st) {
-    Run* l, *r;
+void merge(Stack * st)
+{
+    Run *l, *r;
     int *tmp;
     int lp = 0, rp = 0, out = 0;
 
@@ -206,7 +224,8 @@ void merge(Stack* st) {
 
         IFL(r->d[rp], tmp[lp]) {
             l->d[out++] = r->d[rp++];
-        } else {
+        }
+        else {
             l->d[out++] = tmp[lp++];
         }
     }
@@ -225,8 +244,9 @@ void merge(Stack* st) {
  * size is more 1 Y<=X merge X with Y 
  * merging while (Z>X+Y && Y > X) falsy
  */
-void merge_stack(Stack* st) {
-    Run* runs;
+void merge_stack(Stack * st)
+{
+    Run *runs;
     assert(st);
     runs = st->d;
 
@@ -237,9 +257,9 @@ void merge_stack(Stack* st) {
     while (st->s > 1) {
         int s = st->s;
         int is_Z_less;
-        Run* X = runs + s - 1;
-        Run* Y = runs + s - 2;
-        Run* Z = runs + s - 3;
+        Run *X = runs + s - 1;
+        Run *Y = runs + s - 2;
+        Run *Z = runs + s - 3;
         if (s == 2) {
             if (X->s < Y->s) {
                 break;
@@ -263,10 +283,11 @@ void merge_stack(Stack* st) {
             st->d[st->s - 1] = st->d[st->s];
         }
 
-    } 
+    }
 }
 
-void collapse_stack(Stack* st) {
+void collapse_stack(Stack * st)
+{
     while (st->s > 1) {
         int n = st->s - 2;
         int is_Z_less = n > 0 && st->d[n - 1].s < st->d[n + 1].s;
@@ -282,15 +303,16 @@ void collapse_stack(Stack* st) {
     }
 }
 
-void ts(int* d, const int s) {
+void ts(int *d, const int s)
+{
     int remains = s;
     int st = 0;
     int minrun = get_minrun(s);
-    Stack stack = {0};
+    Stack stack = { 0 };
 
     do {
-        int rn = 0; /* natural run length */
-        int rrl; /* run remains length */
+        int rn = 0;             /* natural run length */
+        int rrl;                /* run remains length */
         find_run(d, st, s, &rn);
 
         if (rn < minrun) {
@@ -300,7 +322,8 @@ void ts(int* d, const int s) {
         }
 
         assert(stack.s < MAX_STACK_SIZE);
-        stack.d[stack.s] = (Run){ .d = d + st, .s = rn };
+        stack.d[stack.s] = (Run) {
+        .d = d + st,.s = rn};
         stack.s++;
 
         merge_stack(&stack);
@@ -330,14 +353,16 @@ void fy_shuffle(int *arr, const int s)
 }
 
 /* fy end */
-void iota(int * a, const int s, int val) {
+void iota(int *a, const int s, int val)
+{
     assert(a);
     for (int i = 0; i < s; ++i) {
         a[i] = val++;
     }
 }
 
-int is_equal(int const * a, int const * b, int s) {
+int is_equal(int const *a, int const *b, int s)
+{
     assert(a);
     assert(b);
     for (int i = 0; i < s; ++i)
@@ -346,59 +371,63 @@ int is_equal(int const * a, int const * b, int s) {
     return 1;
 }
 
-int intcmp(const void* a, const void* b) {
+int intcmp(const void *a, const void *b)
+{
     const int *x = a;
     const int *y = b;
     return *x - *y;
 }
 
-float measure_ts(int* arr, const int s)
+float measure_ts(int *arr, const int s)
 {
     clock_t start, end;
     float seconds;
     start = clock();
     ts(arr, s);
     end = clock();
-    seconds = (float)(end - start) / CLOCKS_PER_SEC;
+    seconds = (float) (end - start) / CLOCKS_PER_SEC;
     return seconds;
 }
 
-float measure_qs(int* arr, const int s)
+float measure_qs(int *arr, const int s)
 {
     clock_t start, end;
     float seconds;
     start = clock();
     qsort(arr, s, sizeof(int), intcmp);
     end = clock();
-    seconds = (float)(end - start) / CLOCKS_PER_SEC;
+    seconds = (float) (end - start) / CLOCKS_PER_SEC;
     return seconds;
 }
 
-float measure_merge(Stack* st)
+float measure_merge(Stack * st)
 {
     clock_t start, end;
     float seconds;
     start = clock();
     merge(st);
     end = clock();
-    seconds = (float)(end - start) / CLOCKS_PER_SEC;
+    seconds = (float) (end - start) / CLOCKS_PER_SEC;
     return seconds;
 }
 
-void stack_test(int* arr, int* r_arr, const int s, int* t_num) {
+void stack_test(int *arr, int *r_arr, const int s, int *t_num)
+{
     int hs = s / 2;
-    Stack st = {0};
-    Run* res;
+    Stack st = { 0 };
+    Run *res;
     int ok = 1;
     float secs;
 
     for (int i = 0; i < s; ++i) {
         r_arr[i] = arr[i];
     }
-    
+
     st.s = 2;
-    st.d[0] = (Run){ .d = arr, .s = hs };
-    st.d[1] = (Run){ .d = arr + hs, .s = hs };
+    st.d[0] = (Run) {
+    .d = arr,.s = hs};
+    st.d[1] = (Run) {
+    .d = arr + hs,.s = hs};
     secs = measure_merge(&st);
     res = st.d;
     for (int i = 0; i < res->s; ++i) {
@@ -415,8 +444,10 @@ void stack_test(int* arr, int* r_arr, const int s, int* t_num) {
     printf("\n");
 
     st.s = 2;
-    st.d[0] = (Run){ .d = r_arr, .s = hs };
-    st.d[1] = (Run){ .d = r_arr + hs, .s = hs };
+    st.d[0] = (Run) {
+    .d = r_arr,.s = hs};
+    st.d[1] = (Run) {
+    .d = r_arr + hs,.s = hs};
     secs = measure_merge(&st);
     res = st.d;
     for (int i = 0; i < res->s; ++i) {
@@ -434,7 +465,8 @@ void stack_test(int* arr, int* r_arr, const int s, int* t_num) {
 }
 
 /* TODO: galloping, add cmp and void** interface */
-int main() {
+int main()
+{
     int rn = 300, n = 2;
     // int minrun = get_minrun(rn);
 
@@ -443,7 +475,7 @@ int main() {
         35, 36, 37, 38, 39, /*  */ 5, 40, 45, 47, 2,
     };
     records_t r1 = init_records(rn, n);
-    
+
     ts(d, 20);
     da(d, 0, 20);
     free_records(r1);
@@ -452,11 +484,11 @@ int main() {
     {
         /* full size */
         int fs = 1000000;
-        int hs = fs/2;
-        int hhs = hs/2;
-        int* arr = alloc_arri(fs);
+        int hs = fs / 2;
+        int hhs = hs / 2;
+        int *arr = alloc_arri(fs);
         /* for test with swap l to r */
-        int* arr_r = alloc_arri(fs);
+        int *arr_r = alloc_arri(fs);
         int t_num = 1;
 
         iota(arr, fs, 1);
@@ -508,7 +540,7 @@ int main() {
         free(arr);
         free(arr_r);
     }
-    return 0;
+    // return 0;
     /* sorting unit */
     {
         int full_size = 1000000;
@@ -534,7 +566,7 @@ int main() {
                 printf("ts: %fs\n", ts_s);
                 printf("qs: %fs\n", qs_s);
             }
-        
+
             s *= 10;
         }
 

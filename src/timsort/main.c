@@ -299,8 +299,6 @@ void ts(int* d, const int s) {
             rn = rrl;
         }
 
-        // printf("run: ");
-        // da(d, st, st + rn);
         assert(stack.s < MAX_STACK_SIZE);
         stack.d[stack.s] = (Run){ .d = d + st, .s = rn };
         stack.s++;
@@ -310,16 +308,9 @@ void ts(int* d, const int s) {
         st += rn;
         remains -= rn;
 
-        // printf("rest: ");
-        // da(d, st, N);
-        // printf("\n");
-
     } while (remains > 0);
 
-    // dstack(&stack);
     collapse_stack(&stack);
-    // dstack(&stack);
-    // da(d, 0, N);
 }
 
 /* fy */
@@ -331,6 +322,7 @@ void fy_shuffle(int *arr, const int s)
 {
     int i = s;
     int j, tmp;
+    assert(arr);
     while (i-- > 1) {
         j = rand() % (i + 1);
         SWP(arr, j, i);
@@ -338,13 +330,16 @@ void fy_shuffle(int *arr, const int s)
 }
 
 /* fy end */
-void iota(int * a, const int s) {
+void iota(int * a, const int s, int val) {
+    assert(a);
     for (int i = 0; i < s; ++i) {
-        a[i] = i+1;
+        a[i] = val++;
     }
 }
 
 int is_equal(int const * a, int const * b, int s) {
+    assert(a);
+    assert(b);
     for (int i = 0; i < s; ++i)
         if (a[i] != b[i])
             return 0;
@@ -379,6 +374,65 @@ float measure_qs(int* arr, const int s)
     return seconds;
 }
 
+float measure_merge(Stack* st)
+{
+    clock_t start, end;
+    float seconds;
+    start = clock();
+    merge(st);
+    end = clock();
+    seconds = (float)(end - start) / CLOCKS_PER_SEC;
+    return seconds;
+}
+
+void stack_test(int* arr, int* r_arr, const int s, int* t_num) {
+    int hs = s / 2;
+    Stack st = {0};
+    Run* res;
+    int ok = 1;
+    float secs;
+
+    for (int i = 0; i < s; ++i) {
+        r_arr[i] = arr[i];
+    }
+    
+    st.s = 2;
+    st.d[0] = (Run){ .d = arr, .s = hs };
+    st.d[1] = (Run){ .d = arr + hs, .s = hs };
+    secs = measure_merge(&st);
+    res = st.d;
+    for (int i = 0; i < res->s; ++i) {
+        if (res->d[i] != i + 1)
+            ok = 0;
+    }
+
+    printf("Stack %d. ", (*t_num)++);
+    if (ok) {
+        printf("Ok. %fs ", secs);
+    } else {
+        printf("FF. %fs ", secs);
+    }
+    printf("\n");
+
+    st.s = 2;
+    st.d[0] = (Run){ .d = r_arr, .s = hs };
+    st.d[1] = (Run){ .d = r_arr + hs, .s = hs };
+    secs = measure_merge(&st);
+    res = st.d;
+    for (int i = 0; i < res->s; ++i) {
+        if (res->d[i] != i + 1)
+            ok = 0;
+    }
+
+    printf("Stack %d. ", (*t_num)++);
+    if (ok) {
+        printf("Ok. %fs ", secs);
+    } else {
+        printf("FF. %fs ", secs);
+    }
+    printf("(r)\n");
+}
+
 /* TODO: galloping, add cmp and void** interface */
 int main() {
     int rn = 300, n = 2;
@@ -394,6 +448,68 @@ int main() {
     da(d, 0, 20);
     free_records(r1);
 
+    /* stack unit */
+    {
+        /* full size */
+        int fs = 1000000;
+        int hs = fs/2;
+        int hhs = hs/2;
+        int* arr = alloc_arri(fs);
+        /* for test with swap l to r */
+        int* arr_r = alloc_arri(fs);
+        int t_num = 1;
+
+        iota(arr, fs, 1);
+        assert(arr[0] == 1);
+        assert(arr[hhs] == hhs + 1);
+        assert(arr[hs] == hs + 1);
+        assert(arr[hs + hhs] == hs + hhs + 1);
+        stack_test(arr, arr_r, fs, &t_num);
+
+        for (int k = 1; k < 10; ++k) {
+            iota(arr, fs, 1);
+
+            for (int i = k, j = 0; i < hs; ++i, ++j) {
+                int tmp;
+                SWP(arr, i, hs + j);
+            }
+            assert(arr[0] == 1);
+            assert(arr[k] == hs + 1);
+            assert(arr[hs] == 1 + k);
+            assert(arr[fs - k] == fs - k + 1);
+            stack_test(arr, arr_r, fs, &t_num);
+        }
+
+        for (int k = hs - 10; k < hs; ++k) {
+            iota(arr, fs, 1);
+
+            for (int i = k, j = 0; i < hs; ++i, ++j) {
+                int tmp;
+                SWP(arr, i, hs + j);
+            }
+            assert(arr[0] == 1);
+            assert(arr[k] == hs + 1);
+            assert(arr[hs] == 1 + k);
+            assert(arr[fs - k] == fs - k + 1);
+            stack_test(arr, arr_r, fs, &t_num);
+        }
+
+        iota(arr, fs, 1);
+        for (int i = hhs; i < hs; ++i) {
+            int tmp;
+            SWP(arr, i, i + hhs);
+        }
+        assert(arr[0] == 1);
+        assert(arr[hhs] == hs + 1);
+        assert(arr[hs] == hhs + 1);
+        assert(arr[hs + hhs] == hs + hhs + 1);
+        stack_test(arr, arr_r, fs, &t_num);
+
+        free(arr);
+        free(arr_r);
+    }
+    return 0;
+    /* sorting unit */
     {
         int full_size = 1000000;
         int *ts_arr = alloc_arri(full_size);
@@ -401,8 +517,8 @@ int main() {
         int s = 10;
         float ts_s, qs_s;
 
-        iota(ts_arr, full_size);
-        iota(qs_arr, full_size);
+        iota(ts_arr, full_size, 1);
+        iota(qs_arr, full_size, 1);
 
         while (s <= full_size) {
             fy_shuffle(ts_arr, s);

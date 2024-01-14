@@ -1,3 +1,4 @@
+""" it can be simplified """
 num_length = 2
 
 def fill_incremental(arr, i1, i2, incr_val):

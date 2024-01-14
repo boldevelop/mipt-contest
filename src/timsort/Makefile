@@ -17,7 +17,7 @@ BIN_DEV=ts-d
 obj=${patsubst %.c,%.o,$(wildcard *.c)}
 
 $(BIN_DEV): CFLAGS += -g
-$(BIN_DEV): CFLAGS += -O2
+$(BIN_DEV): CFLAGS += -O0
 $(BIN_DEV): CFLAGS += -DDEBUG
 $(BIN_DEV): $(obj) | $(BIN_DIR)
 	$(CC) -o $(BIN_DIR)/$@ $(addprefix $(BUILD_DIR)/,$(obj)) $(LDFLAGS)

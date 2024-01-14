@@ -213,13 +213,12 @@ void merge(Stack * st)
 
     while (lp < l->s || rp < r->s) {
         if (lp == l->s) {
-            l->d[out++] = r->d[rp++];
-            continue;
+            break;
         }
 
         if (rp == r->s) {
-            l->d[out++] = tmp[lp++];
-            continue;
+            memcpy(l->d + out, tmp + lp, sizeof(int) * (l->s - lp));
+            break;
         }
 
         IFL(r->d[rp], tmp[lp]) {

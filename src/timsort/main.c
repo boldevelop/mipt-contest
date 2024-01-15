@@ -4,7 +4,11 @@
 #include <string.h>
 #include <time.h>
 
+#define RED     "\033[31m"
+#define RESET   "\033[0m"
+
 #define MAX_STACK_SIZE 85
+#define GALLOP_MODE 7
 
 int get_minrun(int n)
 {
@@ -199,38 +203,117 @@ void dstack(Stack * st)
     }
 }
 
+int gallop(int* d, int s, int k) {
+    int i = 0;
+    int last = s - 1;
+
+    if (s < 1) {
+        return 0;
+    }
+
+    IFL(d[i], k) {
+        i = 2;
+        if (i > last) {
+            i = last;
+        }
+    } else {
+        /* unlucky gallop */
+        return 0;
+    }
+
+    for (;;) {
+        IFL(d[i], k) {
+            if (i == last) {
+                break;
+            }
+            i <<= 1; 
+            assert(i >= 0);
+        } else {
+            break;
+        }
+        if (i > last) {
+            i = last;
+        }
+    }
+
+    /* go_back */
+    for (;;) {
+        IFL(d[i], k) {
+            break;
+        }
+        i--;
+    }
+
+    return i + 1;
+}
+
 /* merging top 2 stack elements */
 void merge(Stack * st)
 {
-    Run *l, *r;
+    Run *l, *r; /* left stack item (top - 1), right stack item (top) */
     int *tmp;
-    int lp = 0, rp = 0, out = 0;
+    /* left position, right position, out position */
+    int lp = 0, rp = 0, out = 0; 
+    int ls, rs; /* left size, right size */
+    int r_copy_count = 0; /* count copy from the right */
+    int l_copy_count = 0; /* count copy from the left */
+    int g = 0; /* gallop count */
+    assert(st);
 
     l = st->d + st->s - 2;
     r = st->d + st->s - 1;
-    tmp = alloc_arri(l->s);
-    memcpy(tmp, l->d, sizeof(int) * l->s);
+    ls = l->s;
+    rs = r->s;
+    tmp = alloc_arri(ls);
+    memcpy(tmp, l->d, sizeof(int) * ls);
 
-    while (lp < l->s || rp < r->s) {
-        if (lp == l->s) {
+    while (lp < ls || rp < rs) {
+        if (lp == ls) {
             break;
         }
 
-        if (rp == r->s) {
-            memcpy(l->d + out, tmp + lp, sizeof(int) * (l->s - lp));
+        if (rp == rs) {
+            memcpy(l->d + out, tmp + lp, sizeof(int) * (ls - lp));
             break;
         }
 
         IFL(r->d[rp], tmp[lp]) {
             l->d[out++] = r->d[rp++];
+            r_copy_count++;
+            l_copy_count = 0;
         }
         else {
             l->d[out++] = tmp[lp++];
+            l_copy_count++;
+            r_copy_count = 0;
+        }
+
+        g = 0;
+        if (r_copy_count > GALLOP_MODE) {
+            r_copy_count = 0;
+            g = gallop(r->d + rp, rs - rp, tmp[lp]);
+            if (g > 0) {
+                memmove(l->d + out, r->d + rp, sizeof(int) * g);
+                rp += g;
+                out += g;
+            }
+            continue;
+        }
+
+        if (l_copy_count > GALLOP_MODE) {
+            l_copy_count = 0;
+            g = gallop(tmp + lp, ls - lp, r->d[rp]);
+            if (g > 0) {
+                memcpy(l->d + out, tmp + lp, sizeof(int) * g);
+                lp += g;
+                out += g;
+            }
+            continue;
         }
     }
 
     st->s--;
-    l->s = l->s + r->s;
+    l->s = ls + rs;
     free(tmp);
 }
 
@@ -438,7 +521,12 @@ void stack_test(int *arr, int *r_arr, const int s, int *t_num)
     if (ok) {
         printf("Ok. %fs ", secs);
     } else {
-        printf("FF. %fs ", secs);
+        printf(RED "FF. %fs " RESET, secs);
+        printf("\n");
+        for (int i = 0; i < res->s; ++i) {
+            printf("%d ", res->d[i]);
+        }
+        printf("\n");
     }
     printf("\n");
 
@@ -458,16 +546,15 @@ void stack_test(int *arr, int *r_arr, const int s, int *t_num)
     if (ok) {
         printf("Ok. %fs ", secs);
     } else {
-        printf("FF. %fs ", secs);
+        printf(RED "FF. %fs " RESET, secs);
     }
     printf("(r)\n");
 }
 
-/* TODO: galloping, add cmp and void** interface */
+/* TODO: add cmp and void** interface */
 int main()
 {
     int rn = 300, n = 2;
-    // int minrun = get_minrun(rn);
 
     int d[20] = {
         50, 49, 48, 47, 46, /*  */ 60, 20, 25, 30, 70,
@@ -480,6 +567,33 @@ int main()
     free_records(r1);
 
     /* stack unit */
+    {
+        int fs = 100;
+        int hs = fs / 2;
+        int *arr = alloc_arri(fs);
+        /* for test with swap l to r */
+        int *arr_r = alloc_arri(fs);
+        int t_num = 1;
+        // iota(arr, fs, 1);
+        // stack_test(arr, arr_r, fs, &t_num);
+
+        for (int k = 1; k < 10; ++k) {
+            iota(arr, fs, 1);
+
+            for (int i = k, j = 0; i < hs; ++i, ++j) {
+                int tmp;
+                SWP(arr, i, hs + j);
+            }
+            assert(arr[0] == 1);
+            assert(arr[k] == hs + 1);
+            assert(arr[hs] == 1 + k);
+            assert(arr[fs - k] == fs - k + 1);
+            stack_test(arr, arr_r, fs, &t_num);
+        }
+        free(arr);
+        free(arr_r);
+    }
+    // return 0;
     {
         /* full size */
         int fs = 1000000;
@@ -546,24 +660,119 @@ int main()
         int *ts_arr = alloc_arri(full_size);
         int *qs_arr = alloc_arri(full_size);
         int s = 10;
+        int fourth;
+        int half;
         float ts_s, qs_s;
 
         iota(ts_arr, full_size, 1);
         iota(qs_arr, full_size, 1);
 
         while (s <= full_size) {
+            fourth = s / 4;
+            half = s /2;
+            printf("size: %d.\n", s);
             fy_shuffle(ts_arr, s);
             fy_shuffle(qs_arr, s);
 
             ts_s = measure_ts(ts_arr, s);
             qs_s = measure_qs(qs_arr, s);
 
+            printf("Shuffled all. ");
             if (!is_equal(ts_arr, qs_arr, s)) {
-                printf("Not equal\n");
+                printf(RED "FF\nNot equal\n" RESET);
             } else {
-                printf("size: %d. OK\n", s);
+                printf("OK\n");
                 printf("ts: %fs\n", ts_s);
                 printf("qs: %fs\n", qs_s);
+            }
+
+            iota(ts_arr, half, 1);
+            iota(qs_arr, half, 1);
+            iota(ts_arr + half, half, 1);
+            iota(qs_arr + half, half, 1);
+
+            ts_s = measure_ts(ts_arr, s);
+            qs_s = measure_qs(qs_arr, s);
+
+            printf("Half equal. ");
+            if (!is_equal(ts_arr, qs_arr, s)) {
+                printf(RED "FF\nNot equal\n" RESET);
+            } else {
+                printf("OK\n");
+                printf("ts: %fs\n", ts_s);
+                printf("qs: %fs\n", qs_s);
+            }
+
+            if (s > 10) {
+                int *b = ts_arr;
+                int half_f = fourth/2;
+
+                iota(b, fourth, fourth);
+                b += fourth;
+                iota(b, fourth, fourth * 2);
+                b += fourth;
+                iota(b, fourth, fourth * 3);
+                b += fourth;
+                iota(b, fourth, 1);
+
+                b = qs_arr; 
+                iota(b, fourth, fourth);
+                b += fourth;
+                iota(b, fourth, fourth * 2);
+                b += fourth;
+                iota(b, fourth, fourth * 3);
+                b += fourth;
+                iota(b, fourth, 1);
+
+                ts_s = measure_ts(ts_arr, s);
+                qs_s = measure_qs(qs_arr, s);
+
+                printf("Increased 4 parts. ");
+                if (!is_equal(ts_arr, qs_arr, s)) {
+                    printf(RED "FF\nNot equal\n" RESET);
+                } else {
+                    printf("OK\n");
+                    printf("ts: %fs\n", ts_s);
+                    printf("qs: %fs\n", qs_s);
+                }
+
+                b = ts_arr;
+                iota(b, fourth, fourth);
+                fy_shuffle(b + half_f, half_f);
+                b += fourth;
+                iota(b, fourth, fourth * 2);
+                fy_shuffle(b + half_f, half_f);
+                b += fourth;
+                iota(b, fourth, fourth * 3);
+                fy_shuffle(b + half_f, half_f);
+                b += fourth;
+                iota(b, fourth, 1);
+                fy_shuffle(b + half_f, half_f);
+
+                b = qs_arr; 
+                iota(b, fourth, fourth);
+                fy_shuffle(b + half_f, half_f);
+                b += fourth;
+                iota(b, fourth, fourth * 2);
+                fy_shuffle(b + half_f, half_f);
+                b += fourth;
+                iota(b, fourth, fourth * 3);
+                fy_shuffle(b + half_f, half_f);
+                b += fourth;
+                iota(b, fourth, 1);
+                fy_shuffle(b + half_f, half_f);
+
+                ts_s = measure_ts(ts_arr, s);
+                qs_s = measure_qs(qs_arr, s);
+
+                printf("Increased 4 parts and half of them shuffled. ");
+                if (!is_equal(ts_arr, qs_arr, s)) {
+                    printf(RED "FF\nNot equal\n" RESET);
+                } else {
+                    printf("OK\n");
+                    printf("ts: %fs\n", ts_s);
+                    printf("qs: %fs\n", qs_s);
+                }
             }
 
             s *= 10;

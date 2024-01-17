@@ -1,9 +1,8 @@
 BUILD_DIR=build
 BIN_DIR=bin
-GEN_DIR=gen
 
 VPATH=${BUILD_DIR}:${BIN_DIR}
-.DEFAULT_GOAL=run
+.DEFAULT_GOAL=ts
 
 CC=gcc
 CFLAGS=-std=gnu11\
@@ -15,12 +14,23 @@ LDFLAGS=-lm
 BIN_DEV=ts-d
 
 obj=${patsubst %.c,%.o,$(wildcard *.c)}
+app_obj = $(filter-out test.o,$(obj))
+tst_obj = $(filter-out main.o,$(obj))
 
-$(BIN_DEV): CFLAGS += -g
+# prod
+ts: CFLAGS += -O2
+ts: cleanobj $(app_obj) | $(BIN_DIR)
+	$(CC) -o $(BIN_DIR)/$@ $(addprefix $(BUILD_DIR)/,$(app_obj)) $(LDFLAGS)
+
+# for tests
+# $(BIN_DEV): CFLAGS += -g
 $(BIN_DEV): CFLAGS += -O2
 $(BIN_DEV): CFLAGS += -DDEBUG
-$(BIN_DEV): $(obj) | $(BIN_DIR)
-	$(CC) -o $(BIN_DIR)/$@ $(addprefix $(BUILD_DIR)/,$(obj)) $(LDFLAGS)
+$(BIN_DEV): $(tst_obj) | $(BIN_DIR)
+	$(CC) -o $(BIN_DIR)/$@ $(addprefix $(BUILD_DIR)/,$(tst_obj)) $(LDFLAGS)
+
+main.o: timsort.h
+test.o: timsort.h
 
 %.o: %.c | $(BUILD_DIR)
 	$(CC) -c $< $(CFLAGS) -o $(BUILD_DIR)/$@
@@ -30,9 +40,6 @@ run: $(BIN_DEV)
 
 gdb: $(BIN_DEV)
 	gdb $(BIN_DIR)/$(BIN_DEV)
-
-gen-test: $(GEN_DIR)
-	time python3 ./gen.py
 
 lint:
 	VERSION_CONTROL=none indent ./*.c -kr -as --no-tabs
@@ -49,6 +56,3 @@ $(BUILD_DIR):
 
 $(BIN_DIR):
 	mkdir $(BIN_DIR)
-
-$(GEN_DIR):
-	mkdir $(GEN_DIR)

@@ -21,22 +21,6 @@ int get_minrun(int n)
     return n + r;
 }
 
-struct Records {
-    int **r;
-    int rn;                     /* recorords (r) count */
-    int n;                      /* elems in (r) count */
-};
-typedef struct Records records_t;
-
-int *alloc_arri(int n)
-{
-    int *buf;
-    buf = calloc(n, sizeof(int));
-    if (!buf)
-        abort();
-    return buf;
-}
-
 uintptr_t *alloc_arruip(const int n)
 {
     uintptr_t *buf;
@@ -46,54 +30,6 @@ uintptr_t *alloc_arruip(const int n)
     return buf;
 }
 
-int **alloc_arrpi(int rn)
-{
-    int **buf;
-    buf = calloc(rn, sizeof(int *));
-    if (!buf)
-        abort();
-    return buf;
-}
-
-records_t init_records(int rn, int n)
-{
-    records_t r;
-    r.rn = rn;
-    r.n = n;
-    r.r = alloc_arrpi(r.rn);
-    for (int i = 0; i < r.rn; ++i) {
-        r.r[i] = alloc_arri(r.n);
-    }
-    return r;
-}
-
-void free_records(const records_t r)
-{
-    for (int i = 0; i < r.rn; ++i) {
-        free(r.r[i]);
-    }
-    free(r.r);
-}
-
-void dump_r(const records_t r)
-{
-    for (int i = 0; i < r.rn; ++i) {
-        for (int j = 0; j < r.n; ++j)
-            printf("%d ", r.r[i][j]);
-        printf("\n");
-    }
-}
-
-void fill_r(records_t r)
-{
-    // int minrun = get_minrun(r.rn);
-
-    for (int i = 0; i < r.rn; ++i) {
-        for (int j = 0; j < r.n; ++j) {
-            r.r[i][j] = (i + 1) + j * 10;
-        }
-    }
-}
 
 #define IFL(x, y) if (state->less((const void*)(x), (const void*)(y)))
 typedef unsigned char uchar;
@@ -607,8 +543,68 @@ void stack_test(uintptr_t * arr, uintptr_t * r_arr, const int s,
     printf("(r)\n");
 }
 
+int *alloc_arri(int n)
+{
+    int *buf;
+    buf = calloc(n, sizeof(int));
+    if (!buf)
+        abort();
+    return buf;
+}
+
+int **alloc_arrpi(int rn)
+{
+    int **buf;
+    buf = calloc(rn, sizeof(int *));
+    if (!buf)
+        abort();
+    return buf;
+}
+
+int read_int() {
+    int buf;
+    if (scanf("%d", &buf) != 1) {
+        abort();
+    }
+    return buf;
+}
+
+static int X = 0;
+
+int less_jarr(const void *a, const void *b)
+{
+    const int *x = a;
+    const int *y = b;
+    return x[X] < y[X];
+}
+
 int main()
 {
+    int N, K;
+    int** j_arr;
+    N = read_int();
+    K = read_int();
+    X = read_int();
+    j_arr = alloc_arrpi(N);
+    for (int i = 0; i < N; ++i) {
+        j_arr[i] = alloc_arri(K);
+        for (int j = 0; j < K; ++j) {
+            j_arr[i][j] = read_int();
+        }
+    }
+    ts((uintptr_t *)j_arr, N, less_jarr);
+
+    /*  для записи под номером n (номера с нуля) записывать её поле с номером (n % N */
+    for (int i = 0; i < N; ++i) {
+        printf("%d ", j_arr[i][i % K]);
+    }
+    printf("\n");
+
+    for (int i = 0; i < N; ++i)
+        free(j_arr[i]);
+    free(j_arr);
+    /* количество записей (N), количество полей (K), номер поля для сортировки (X) */
+#if 0
     /* stack unit */
     {
         int fs = 100;
@@ -871,4 +867,5 @@ int main()
         free(ts_arr);
         free(qs_arr);
     }
+#endif
 }

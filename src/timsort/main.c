@@ -22,7 +22,8 @@ int **alloc_arrpi(int rn)
     return buf;
 }
 
-int read_int() {
+int read_int()
+{
     int buf;
     if (scanf("%d", &buf) != 1) {
         abort();
@@ -42,7 +43,7 @@ int less_jarr(const void *a, const void *b)
 int main()
 {
     int N, K;
-    int** j_arr;
+    int **j_arr;
     /* количество записей (N), количество полей (K), номер поля для сортировки (X) */
     N = read_int();
     K = read_int();
@@ -54,7 +55,7 @@ int main()
             j_arr[i][j] = read_int();
         }
     }
-    timsort((uintptr_t *)j_arr, N, less_jarr);
+    timsort((uintptr_t *) j_arr, N, less_jarr);
 
     /*  для записи под номером n (номера с нуля) записывать её поле с номером (n % N) */
     for (int i = 0; i < N; ++i) {

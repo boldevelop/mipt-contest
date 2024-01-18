@@ -124,7 +124,7 @@ float measure_merge(TsState * st)
 }
 
 void merge_test(uintptr_t * arr, uintptr_t * r_arr, const int s,
-                int measure, int *t_num, int* passed)
+                int measure, int *t_num, int *passed)
 {
     int hs = s / 2;
     TsState state = { 0 };
@@ -199,29 +199,32 @@ void merge_test(uintptr_t * arr, uintptr_t * r_arr, const int s,
     }
 }
 
-void gen_half_iota(uintptr_t *arr, const int s) {
+void gen_half_iota(uintptr_t * arr, const int s)
+{
     int half = s / 2;
     iota(arr, half, 1);
     iota(arr + half, half, 1);
 }
 
-void gen_fourth_incr_swapped_parts(uintptr_t *arr, const int s) {
+void gen_fourth_incr_swapped_parts(uintptr_t * arr, const int s)
+{
     int fourth = s / 4;
 
     iota(arr, fourth, fourth);
-    
+
     arr += fourth;
     iota(arr, fourth, fourth * 2);
-    
+
     arr += fourth;
     iota(arr, fourth, fourth * 3);
-    
+
     arr += fourth;
     iota(arr, fourth, 1);
 }
 
 /* same as gen_fourth_incr_swapped_parts but adding shuffled */
-void gen_fisp_and_eight_shuffled(uintptr_t *arr, const int s) {
+void gen_fisp_and_eight_shuffled(uintptr_t * arr, const int s)
+{
     int fourth = s / 4;
     int eighth = fourth / 2;
 
@@ -252,7 +255,7 @@ int main()
         uintptr_t *arr = alloc_arruip(fs);
         /* for test with swap l to r */
         uintptr_t *arr_r = alloc_arruip(fs);
-        
+
 
         for (int k = 1; k < 10; ++k) {
             iota(arr, fs, 1);
@@ -329,7 +332,8 @@ int main()
         merge_t_num--;
         printf("%d merge tests passed.\n", merge_t_passed);
         if (merge_t_num - merge_t_passed) {
-            printf(RED "%d" RESET " merge tests FAILED.\n", merge_t_num - merge_t_passed);
+            printf(RED "%d" RESET " merge tests FAILED.\n",
+                   merge_t_num - merge_t_passed);
         }
 
         free(arr);
@@ -385,7 +389,8 @@ int main()
 
         printf("%d stability tests passed.\n", okTests);
         if (t_num - okTests > 1) {
-            printf(RED "%d" RESET " stability tests FAILED.\n", t_num - okTests - 1);
+            printf(RED "%d" RESET " stability tests FAILED.\n",
+                   t_num - okTests - 1);
         }
     }
 

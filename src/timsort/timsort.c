@@ -74,7 +74,8 @@ static void reverse(uintptr_t * d, int st, int end)
  * end: end of array
  * rn: count run
 */
-static void find_run(TsState * state, uintptr_t * data, int b, int end, int *rn)
+static void find_run(TsState * state, uintptr_t * data, int b, int end,
+                     int *rn)
 {
     /* desc ordering */
     int desc = 0;
@@ -126,8 +127,8 @@ static void find_run(TsState * state, uintptr_t * data, int b, int end, int *rn)
 /**
  * stup: start unsorted position
  */
-static void insertion_sort(TsState * state, uintptr_t * data, int b, int end,
-                    int stup)
+static void insertion_sort(TsState * state, uintptr_t * data, int b,
+                           int end, int stup)
 {
     for (int i = stup; i < end; ++i) {
         int p = i;              /* prev j index */

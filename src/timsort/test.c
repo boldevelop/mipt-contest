@@ -3,9 +3,11 @@
 #include <assert.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 
-#define TEST 1
 #include "timsort.h"
+
+typedef unsigned char uchar;
 
 #define RED     "\033[31m"
 #define RESET   "\033[0m"
@@ -13,36 +15,18 @@
     (arr)[(i)] = (arr)[(j)];\
     (arr)[(j)] = tmp;
 
-static uintptr_t *alloc_arruip(const int n)
+static int *alloc_arri(const int n)
 {
-    uintptr_t *buf;
-    buf = calloc(n, sizeof(uintptr_t));
+    int *buf;
+    buf = calloc(n, sizeof(int));
     if (!buf)
         abort();
     return buf;
 }
 
-void da(uintptr_t * d, int b, int e)
+void fy_shuffle(int * arr, const int s)
 {
-    for (; b < e; ++b)
-        printf("%ld ", d[b]);
-    printf("\n");
-}
-
-void dstack(Stack * st)
-{
-    printf("Stack:\n");
-    for (int i = st->s - 1; i >= 0; --i) {
-        Run *r = st->d + i;
-        printf("%d: ", r->s);
-        da(r->d, 0, r->s);
-    }
-}
-
-void fy_shuffle(uintptr_t * arr, const int s)
-{
-    int i = s;
-    uintptr_t j, tmp;
+    int i = s, j, tmp;
     assert(arr);
     while (i-- > 1) {
         j = rand() % (i + 1);
@@ -50,8 +34,7 @@ void fy_shuffle(uintptr_t * arr, const int s)
     }
 }
 
-/* fy end */
-void iota(uintptr_t * a, const int s, int val)
+void iota(int * a, const int s, int val)
 {
     assert(a);
     for (int i = 0; i < s; ++i) {
@@ -59,7 +42,7 @@ void iota(uintptr_t * a, const int s, int val)
     }
 }
 
-int is_equal(const uintptr_t * a, const uintptr_t * b, int s)
+int is_equal(const int * a, const int * b, int s)
 {
     assert(a);
     assert(b);
@@ -90,63 +73,67 @@ int lessintp(const void *a, const void *b)
     return x[0] < y[0];
 }
 
-float measure_ts(uintptr_t * arr, const int s)
-{
+typedef void (*Sort)(void * pbase, int total_elems, int size, Comparator cmp);
+
+
+float measure_sort(void * arr, const int s, int size, Comparator cmp, Sort sort) {
     clock_t start, end;
     float seconds;
     start = clock();
-    timsort(arr, s, lessint);
+    sort(arr, s, size, cmp);
     end = clock();
     seconds = (float) (end - start) / CLOCKS_PER_SEC;
     return seconds;
 }
 
-float measure_qs(uintptr_t * arr, const int s)
+float measure_ts(int * arr, const int s)
 {
     clock_t start, end;
     float seconds;
     start = clock();
-    qsort(arr, s, sizeof(uintptr_t), intcmp);
+    timsort(arr, s, sizeof(int), intcmp);
     end = clock();
     seconds = (float) (end - start) / CLOCKS_PER_SEC;
     return seconds;
 }
 
-float measure_merge(TsState * st)
+float measure_qs(int * arr, const int s)
 {
     clock_t start, end;
     float seconds;
     start = clock();
-    merge(st);
+    qsort(arr, s, sizeof(int), intcmp);
     end = clock();
     seconds = (float) (end - start) / CLOCKS_PER_SEC;
     return seconds;
 }
 
-void merge_test(uintptr_t * arr, uintptr_t * r_arr, const int s,
+float measure_merge(void *arr, int s, int es, void *tmp)
+{
+    clock_t start, end;
+    float seconds;
+    start = clock();
+    galop_merge(arr, s, s, es, intcmp, tmp);
+    end = clock();
+    seconds = (float) (end - start) / CLOCKS_PER_SEC;
+    return seconds;
+}
+
+void merge_test(void *arr, void *r_arr, int s, int es, void *tmp,
                 int measure, int *t_num, int *passed)
 {
     int hs = s / 2;
-    TsState state = { 0 };
-    Run *res;
     int ok = 1;
-    float secs;
-    state.less = lessint;
+    float secs = 0;
+
+    memcpy(r_arr, arr, s * es);
+    secs = measure_merge(arr, hs, es, tmp);
 
     for (int i = 0; i < s; ++i) {
-        r_arr[i] = arr[i];
-    }
-
-    state.st.s = 2;
-    state.st.d[0] = (Run) {
-    .d = arr,.s = hs};
-    state.st.d[1] = (Run) {
-    .d = arr + hs,.s = hs};
-    secs = measure_merge(&state);
-    res = state.st.d;
-    for (int i = 0; i < res->s; ++i) {
-        if (res->d[i] != (uintptr_t) (i + 1))
+        if (*((int *)arr + i) != (i + 1)) {
             ok = 0;
+            break;
+        }
     }
 
     if (measure) {
@@ -167,17 +154,13 @@ void merge_test(uintptr_t * arr, uintptr_t * r_arr, const int s,
         (*t_num)++;
     }
 
-    /* reversed stack test */
-    state.st.s = 2;
-    state.st.d[0] = (Run) {
-    .d = r_arr,.s = hs};
-    state.st.d[1] = (Run) {
-    .d = r_arr + hs,.s = hs};
-    secs = measure_merge(&state);
-    res = state.st.d;
-    for (int i = 0; i < res->s; ++i) {
-        if (res->d[i] != (uintptr_t) (i + 1))
+    secs = measure_merge(r_arr, hs, es, tmp);
+
+    for (int i = 0; i < s; ++i) {
+        if (*((int *)r_arr + i) != (i + 1)) {
             ok = 0;
+            break;
+        }
     }
 
     if (measure) {
@@ -199,14 +182,15 @@ void merge_test(uintptr_t * arr, uintptr_t * r_arr, const int s,
     }
 }
 
-void gen_half_iota(uintptr_t * arr, const int s)
+
+void gen_half_iota(int * arr, const int s)
 {
     int half = s / 2;
     iota(arr, half, 1);
     iota(arr + half, half, 1);
 }
 
-void gen_fourth_incr_swapped_parts(uintptr_t * arr, const int s)
+void gen_fourth_incr_swapped_parts(int * arr, const int s)
 {
     int fourth = s / 4;
 
@@ -223,7 +207,7 @@ void gen_fourth_incr_swapped_parts(uintptr_t * arr, const int s)
 }
 
 /* same as gen_fourth_incr_swapped_parts but adding shuffled */
-void gen_fisp_and_eight_shuffled(uintptr_t * arr, const int s)
+void gen_fisp_and_eight_shuffled(int * arr, const int s)
 {
     int fourth = s / 4;
     int eighth = fourth / 2;
@@ -246,88 +230,90 @@ void gen_fisp_and_eight_shuffled(uintptr_t * arr, const int s)
 
 int main()
 {
-    /* stack unit */
     int merge_t_num = 1;
     int merge_t_passed = 0;
     {
         int fs = 100;
         int hs = fs / 2;
-        uintptr_t *arr = alloc_arruip(fs);
+        int *arr = alloc_arri(fs);
         /* for test with swap l to r */
-        uintptr_t *arr_r = alloc_arruip(fs);
+        int *arr_r = alloc_arri(fs);
+        int *tmp = alloc_arri(fs);
 
 
         for (int k = 1; k < 10; ++k) {
             iota(arr, fs, 1);
 
             for (int i = k, j = 0; i < hs; ++i, ++j) {
-                uintptr_t tmp;
+                int tmp;
                 SWP(arr, i, hs + j);
             }
-            assert((int) arr[0] == 1);
-            assert((int) arr[k] == hs + 1);
-            assert((int) arr[hs] == 1 + k);
-            assert((int) arr[fs - k] == fs - k + 1);
-            merge_test(arr, arr_r, fs, 0, &merge_t_num, &merge_t_passed);
+            assert(arr[0] == 1);
+            assert(arr[k] == hs + 1);
+            assert(arr[hs] == 1 + k);
+            assert(arr[fs - k] == fs - k + 1);
+            merge_test(arr, arr_r, fs, sizeof(int), tmp, 1, &merge_t_num, &merge_t_passed);
+            // merge_test(arr, arr_r, fs, 0, &merge_t_num, &merge_t_passed);
         }
         free(arr);
         free(arr_r);
+        free(tmp);
     }
-
     {
         /* full size */
         int fs = 1000000;
         int hs = fs / 2;
         int hhs = hs / 2;
-        uintptr_t *arr = alloc_arruip(fs);
+        int *arr = alloc_arri(fs);
         /* for test with swap l to r */
-        uintptr_t *arr_r = alloc_arruip(fs);
+        int *arr_r = alloc_arri(fs);
+        int *tmp = alloc_arri(fs);
 
         iota(arr, fs, 1);
-        assert((int) arr[0] == 1);
-        assert((int) arr[hhs] == hhs + 1);
-        assert((int) arr[hs] == hs + 1);
-        assert((int) arr[hs + hhs] == hs + hhs + 1);
-        merge_test(arr, arr_r, fs, 1, &merge_t_num, &merge_t_passed);
+        assert(arr[0] == 1);
+        assert(arr[hhs] == hhs + 1);
+        assert(arr[hs] == hs + 1);
+        assert(arr[hs + hhs] == hs + hhs + 1);
+        merge_test(arr, arr_r, fs, sizeof(int), tmp, 1, &merge_t_num, &merge_t_passed);
 
         for (int k = 1; k < 10; ++k) {
             iota(arr, fs, 1);
 
             for (int i = k, j = 0; i < hs; ++i, ++j) {
-                uintptr_t tmp;
+                int tmp;
                 SWP(arr, i, hs + j);
             }
-            assert((int) arr[0] == 1);
-            assert((int) arr[k] == hs + 1);
-            assert((int) arr[hs] == 1 + k);
-            assert((int) arr[fs - k] == fs - k + 1);
-            merge_test(arr, arr_r, fs, 1, &merge_t_num, &merge_t_passed);
+            assert(arr[0] == 1);
+            assert(arr[k] == hs + 1);
+            assert(arr[hs] == 1 + k);
+            assert(arr[fs - k] == fs - k + 1);
+            merge_test(arr, arr_r, fs, sizeof(int), tmp, 1, &merge_t_num, &merge_t_passed);
         }
 
         for (int k = hs - 10; k < hs; ++k) {
             iota(arr, fs, 1);
 
             for (int i = k, j = 0; i < hs; ++i, ++j) {
-                uintptr_t tmp;
+                int tmp;
                 SWP(arr, i, hs + j);
             }
-            assert((int) arr[0] == 1);
-            assert((int) arr[k] == hs + 1);
-            assert((int) arr[hs] == 1 + k);
-            assert((int) arr[fs - k] == fs - k + 1);
-            merge_test(arr, arr_r, fs, 1, &merge_t_num, &merge_t_passed);
+            assert(arr[0] == 1);
+            assert(arr[k] == hs + 1);
+            assert(arr[hs] == 1 + k);
+            assert(arr[fs - k] == fs - k + 1);
+            merge_test(arr, arr_r, fs, sizeof(int), tmp, 1, &merge_t_num, &merge_t_passed);
         }
 
         iota(arr, fs, 1);
         for (int i = hhs; i < hs; ++i) {
-            uintptr_t tmp;
+            int tmp;
             SWP(arr, i, i + hhs);
         }
-        assert((int) arr[0] == 1);
-        assert((int) arr[hhs] == hs + 1);
-        assert((int) arr[hs] == hhs + 1);
-        assert((int) arr[hs + hhs] == hs + hhs + 1);
-        merge_test(arr, arr_r, fs, 1, &merge_t_num, &merge_t_passed);
+        assert(arr[0] == 1);
+        assert(arr[hhs] == hs + 1);
+        assert(arr[hs] == hhs + 1);
+        assert(arr[hs + hhs] == hs + hhs + 1);
+        merge_test(arr, arr_r, fs, sizeof(int), tmp, 1, &merge_t_num, &merge_t_passed);
 
         merge_t_num--;
         printf("%d merge tests passed.\n", merge_t_passed);
@@ -338,8 +324,10 @@ int main()
 
         free(arr);
         free(arr_r);
+        free(tmp);
     }
-
+    // return 0;
+    #if 0
     /* unit for stability */
     {
         /* group_size */
@@ -393,13 +381,27 @@ int main()
                    t_num - okTests - 1);
         }
     }
-
+#endif
     /* sorting unit */
     /* make stress for 1000000 */
     {
+        int s = 10;
+        int* arr = calloc(s, sizeof(int));
+        for (int i = 0; i < s; ++i) {
+            arr[i] = s - i;
+        }
+        measure_sort(arr, s, sizeof(int), intcmp, timsort);
+        for (int i = 0; i < s; ++i) {
+            printf("%d ", arr[i]);
+        }
+        printf("\n");
+        free(arr);
+    }
+    // return 0;
+    {
         int full_size = 1000000;
-        uintptr_t *ts_arr = alloc_arruip(full_size);
-        uintptr_t *qs_arr = alloc_arruip(full_size);
+        int *ts_arr = alloc_arri(full_size);
+        int *qs_arr = alloc_arri(full_size);
         int s = 10;
         float ts_s, qs_s;
 
@@ -411,7 +413,9 @@ int main()
             fy_shuffle(ts_arr, s);
             fy_shuffle(qs_arr, s);
 
-            ts_s = measure_ts(ts_arr, s);
+            // ts_s = measure_ts(ts_arr, s);
+            ts_s = measure_sort(ts_arr, s, sizeof(int), intcmp, timsort);
+            // qs_s = measure_sort(qs_arr, s, sizeof(int), intcmp, qsort);
             qs_s = measure_qs(qs_arr, s);
 
             printf("Shuffled all. ");

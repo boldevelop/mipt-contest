@@ -6,15 +6,17 @@
 
 #include "timsort.h"
 
+typedef unsigned char uchar;
+
 #define GALLOP_MODE 7
 
 #define IFL(x, y) if (state->less((const void*)(x), (const void*)(y)))
 
-#ifndef TEST
+// #ifndef TEST
 #define MAX_STACK_SIZE 85
 
 struct run_t {
-    uintptr_t *d;
+    uchar* d;
     int s;
 };
 typedef struct run_t Run;
@@ -26,11 +28,16 @@ struct stack_t {
 typedef struct stack_t Stack;
 
 struct ts_state_t {
-    Less less;
+    Comparator cmp;
     Stack st;
+    int es;
+    uchar* base;
+    uchar* tmp;
 };
 typedef struct ts_state_t TsState;
-#endif
+
+#define Get(state, i) state->base + (i) * state->es
+// #endif
 
 static int get_minrun(int n)
 {
@@ -42,29 +49,55 @@ static int get_minrun(int n)
     return n + r;
 }
 
-static uintptr_t *alloc_arruip(const int n)
+// static uintptr_t *alloc_arruip(const int n)
+// {
+//     uintptr_t *buf;
+//     buf = calloc(n, sizeof(uintptr_t));
+//     if (!buf)
+//         abort();
+//     return buf;
+// }
+
+static uchar *alloc_arruc(int n, int es)
 {
-    uintptr_t *buf;
-    buf = calloc(n, sizeof(uintptr_t));
+    uchar *buf;
+    buf = calloc(n, es);
     if (!buf)
         abort();
     return buf;
 }
 
-static void swap(uintptr_t * d, int l, int r)
-{
-    uintptr_t t = d[l];
-    d[l] = d[r];
-    d[r] = t;
+// static void swap(uintptr_t * d, int l, int r)
+// {
+//     uintptr_t t = d[l];
+//     d[l] = d[r];
+//     d[r] = t;
+// }
+
+static void cswap(void* l, void* r, int es) {
+    uchar* a = l;
+    uchar* b = r;
+    if (a == b) return;
+
+    do {
+        uchar t = *a;
+        *a++ = *b;
+        *b++ = t;
+    } while (--es > 0);
 }
 
-static void reverse(uintptr_t * d, int st, int end)
+static int is_less(TsState* state, int l, int r) {
+    return state->cmp(Get(state, l), Get(state, r)) < 0;
+}
+
+static void reverse(TsState* state, int l, int r)
 {
-    end--;
-    while (st < end) {
-        swap(d, st, end);
-        ++st;
-        --end;
+    r--;
+    while (l < r) {
+        cswap(Get(state, l), Get(state, r), state->es);
+        // swap(d, l, r);
+        ++l;
+        --r;
     }
 }
 
@@ -74,35 +107,38 @@ static void reverse(uintptr_t * d, int st, int end)
  * end: end of array
  * rn: count run
 */
-static void find_run(TsState * state, uintptr_t * data, int b, int end,
-                     int *rn)
+static void find_run(TsState * state, int l, int r, int *rn)
 {
     /* desc ordering */
     int desc = 0;
     /* preserve begin position */
-    int b_saved = b;
+    int l_saved = l;
 
-    if (b == end) {
+    if (l == r) {
         *rn = 0;
         return;
     }
     *rn = 1;
-    b++;
+    l++;
 
-    if (b == end) {
+    if (l == r) {
         return;
     }
 
-    IFL(data[b], data[b - 1]) {
+
+    // IFL(data[l], data[l - 1]) {
+    if (is_less(state, l, l - 1)) {
         desc = 1;
     }
 
-    b++;
+    l++;
     (*rn)++;
 
     if (desc) {
-        for (; b < end; ++b) {
-            IFL(data[b], data[b - 1]) {
+        /* count_run_until_end */
+        for (; l < r; ++l) {
+            // IFL(data[l], data[l - 1]) {
+            if (is_less(state, l, l - 1)) {
                 (*rn)++;
             }
             else {
@@ -110,8 +146,9 @@ static void find_run(TsState * state, uintptr_t * data, int b, int end,
             }
         }
     } else {
-        for (; b < end; ++b) {
-            IFL(data[b], data[b - 1]) {
+        for (; l < r; ++l) {
+            if (is_less(state, l, l - 1)) {
+            // IFL(data[l], data[l - 1]) {
                 break;
             }
             else {
@@ -120,22 +157,25 @@ static void find_run(TsState * state, uintptr_t * data, int b, int end,
         }
     }
     if (desc) {
-        reverse(data, b_saved, b);
+        reverse(state, l_saved, l);
     }
 }
 
 /**
  * stup: start unsorted position
  */
-static void insertion_sort(TsState * state, uintptr_t * data, int b,
-                           int end, int stup)
+static void insertion_sort(TsState * state, int l, int r, int stup)
 {
-    for (int i = stup; i < end; ++i) {
+    for (int i = stup; i < r; ++i) {
         int p = i;              /* prev j index */
 
-        for (int j = i - 1; j >= b; --j) {
-            IFL(data[p], data[j]) {
-                swap(data, j, p);
+        for (int j = i - 1; j >= l; --j) {
+            uchar* left = Get(state, p);
+            uchar* right = Get(state, j);
+            if (is_less(state, p, j)) {
+            // IFL(data[p], data[j]) {
+                cswap(left, right, state->es);
+                // swap(data, j, p);
                 p--;
             } else {
                 break;
@@ -144,9 +184,7 @@ static void insertion_sort(TsState * state, uintptr_t * data, int b,
     }
 
 }
-
-static int gallop(TsState * state, uintptr_t * data, int s, uintptr_t k)
-{
+static int ggallop(uchar* data, int s, int es, Comparator cmp, uchar* k) {
     int i = 0;
     int last = s - 1;
 
@@ -154,7 +192,9 @@ static int gallop(TsState * state, uintptr_t * data, int s, uintptr_t k)
         return 0;
     }
 
-    IFL(data[i], k) {
+
+    if (cmp(data + i * es, k) < 0) {
+    // IFL(data[i], k) {
         i = 2;
         if (i > last) {
             i = last;
@@ -166,7 +206,8 @@ static int gallop(TsState * state, uintptr_t * data, int s, uintptr_t k)
     }
 
     for (;;) {
-        IFL(data[i], k) {
+        if (cmp(data + i * es, k) < 0) {
+        // IFL(data[i], k) {
             if (i == last) {
                 break;
             }
@@ -183,7 +224,59 @@ static int gallop(TsState * state, uintptr_t * data, int s, uintptr_t k)
 
     /* go_back */
     for (;;) {
-        IFL(data[i], k) {
+        if (cmp(data + i * es, k) < 0) {
+        // IFL(data[i], k) {
+            break;
+        }
+        i--;
+    }
+
+    return i + 1;
+}
+static int gallop(TsState * state, uchar* data, int s, void* k)
+{
+    int i = 0;
+    int last = s - 1;
+    int es = state->es;
+
+    if (s < 1) {
+        return 0;
+    }
+
+
+    if (state->cmp(data + i * es, k) < 0) {
+    // IFL(data[i], k) {
+        i = 2;
+        if (i > last) {
+            i = last;
+        }
+    }
+    else {
+        /* unlucky gallop */
+        return 0;
+    }
+
+    for (;;) {
+        if (state->cmp(data + i * es, k) < 0) {
+        // IFL(data[i], k) {
+            if (i == last) {
+                break;
+            }
+            i <<= 1;
+            assert(i >= 0);
+        }
+        else {
+            break;
+        }
+        if (i > last) {
+            i = last;
+        }
+    }
+
+    /* go_back */
+    for (;;) {
+        if (state->cmp(data + i * es, k) < 0) {
+        // IFL(data[i], k) {
             break;
         }
         i--;
@@ -192,52 +285,39 @@ static int gallop(TsState * state, uintptr_t * data, int s, uintptr_t k)
     return i + 1;
 }
 
-/* merging top 2 stack elements */
-void merge(TsState * state)
-{
-    Run *l, *r;                 /* left stack item (top - 1), right stack item (top) */
-    uintptr_t *tmp;
-    /* left position, right position, out position */
+/* merge of
+    data: [. . . . . . . . . .]
+           |<- ls -> |<- rs ->|
+ */
+void galop_merge(uchar* data, int ls, int rs, int es, Comparator cmp, uchar* tmp) {
+    uchar* l = data;
+    uchar* r = data + ls * es;
+    uchar* outptr, *lptr, *rptr;
     int lp = 0, rp = 0, out = 0;
-    int ls, rs;                 /* left size, right size */
     int r_copy_count = 0;       /* count copy from the right */
     int l_copy_count = 0;       /* count copy from the left */
-    int g = 0;                  /* gallop count */
-    assert(state);
-
-    l = state->st.d + state->st.s - 2;
-    r = state->st.d + state->st.s - 1;
-    ls = l->s;
-    rs = r->s;
-    tmp = alloc_arruip(ls);
-    memcpy(tmp, l->d, sizeof(uintptr_t) * ls);
+    int g = 0;
+    memcpy(tmp, l, ls * es);
 
     while (lp < ls || rp < rs) {
+        outptr = l + out * es;
+        lptr = tmp + lp * es;
+        rptr = r + rp * es;
+
         if (lp == ls) {
             break;
         }
 
         if (rp == rs) {
-            memcpy(l->d + out, tmp + lp, sizeof(uintptr_t) * (ls - lp));
+            memcpy(outptr, lptr, (ls - lp) * es);
             break;
-        }
-
-        IFL(r->d[rp], tmp[lp]) {
-            l->d[out++] = r->d[rp++];
-            r_copy_count++;
-            l_copy_count = 0;
-        }
-        else {
-            l->d[out++] = tmp[lp++];
-            l_copy_count++;
-            r_copy_count = 0;
         }
 
         if (r_copy_count > GALLOP_MODE) {
             r_copy_count = 0;
-            g = gallop(state, r->d + rp, rs - rp, tmp[lp]);
+            g = ggallop(rptr, rs - rp, es, cmp, lptr);
             if (g > 0) {
-                memmove(l->d + out, r->d + rp, sizeof(uintptr_t) * g);
+                memmove(outptr, rptr, g * es);
                 rp += g;
                 out += g;
             }
@@ -246,9 +326,114 @@ void merge(TsState * state)
 
         if (l_copy_count > GALLOP_MODE) {
             l_copy_count = 0;
-            g = gallop(state, tmp + lp, ls - lp, r->d[rp]);
+            g = ggallop(lptr, ls - lp, es, cmp, rptr);
             if (g > 0) {
-                memcpy(l->d + out, tmp + lp, sizeof(uintptr_t) * g);
+                memcpy(outptr, lptr, g * es);
+                lp += g;
+                out += g;
+            }
+            continue;
+        }
+
+        if (cmp(rptr, lptr) < 0) {
+        // IFL(r->d[rp], tmp[lp]) {
+            // l->d[out++] = r->d[rp++];
+            cswap(outptr, rptr, es);
+            out++;
+            rp++;
+
+            r_copy_count++;
+            l_copy_count = 0;
+        }
+        else {
+            // l->d[out++] = tmp[lp++];
+            cswap(outptr, lptr, es);
+            out++;
+            lp++;
+
+            l_copy_count++;
+            r_copy_count = 0;
+        }
+    }
+}
+
+/* merging top 2 stack elements */
+void merge(TsState * state)
+{
+    Run *l, *r;                 /* left stack item (top - 1), right stack item (top) */
+    uchar *tmp;
+    
+    /* left position, right position, out position */
+    int lp = 0, rp = 0, out = 0;
+    int ls, rs;                 /* left size, right size */
+    int r_copy_count = 0;       /* count copy from the right */
+    int l_copy_count = 0;       /* count copy from the left */
+    int g = 0;                  /* gallop count */
+    int es = state->es;
+    assert(state);
+
+    l = state->st.d + state->st.s - 2;
+    r = state->st.d + state->st.s - 1;
+    ls = l->s;
+    rs = r->s;
+    // tmp = alloc_arruc(ls, state->es);
+    galop_merge(l->d, ls, rs, es, state->cmp, state->tmp);
+
+    state->st.s--;
+    l->s = ls + rs;
+    // free(tmp);
+    return;
+    memcpy(tmp, l->d, ls * state->es);
+
+    while (lp < ls || rp < rs) {
+        if (lp == ls) {
+            break;
+        }
+
+        if (rp == rs) {
+            memcpy(
+                l->d + out * state->es,
+                tmp + lp * state->es,
+                (ls - lp) *state->es);
+            break;
+        }
+
+        if (state->cmp(r->d + rp * es, tmp + lp * es) < 0) {
+        // IFL(r->d[rp], tmp[lp]) {
+            // l->d[out++] = r->d[rp++];
+            cswap(l->d + out * es, r->d + rp * es, es);
+            out++;
+            rp++;
+
+            r_copy_count++;
+            l_copy_count = 0;
+        }
+        else {
+            // l->d[out++] = tmp[lp++];
+            cswap(l->d + out * es, tmp + lp * es, es);
+            out++;
+            lp++;
+
+            l_copy_count++;
+            r_copy_count = 0;
+        }
+
+        if (r_copy_count > GALLOP_MODE) {
+            r_copy_count = 0;
+            g = gallop(state, r->d + rp * es, rs - rp, tmp + lp * es);
+            if (g > 0) {
+                memmove(l->d + out * es, r->d + rp * es, g * es);
+                rp += g;
+                out += g;
+            }
+            continue;
+        }
+
+        if (l_copy_count > GALLOP_MODE) {
+            l_copy_count = 0;
+            g = gallop(state, tmp + lp * es, ls - lp, r->d + rp * es);
+            if (g > 0) {
+                memcpy(l->d + out * es, tmp + lp * es, g * es);
                 lp += g;
                 out += g;
             }
@@ -336,28 +521,30 @@ static void collapse_stack(TsState * state)
  * s - elems count
  * less - funct return 1 if a < b
  */
-void timsort(uintptr_t * d, const int s, Less less)
+void timsort(void *const d, int s, int es, Comparator cmp)
 {
     int remains = s;
     int st = 0;
     int minrun = get_minrun(s);
     TsState state = { 0 };
-    state.less = less;
+    state.cmp = cmp;
+    state.es = es;
+    state.base = d;
+    state.tmp = alloc_arruc(s, es);
 
     do {
         int rn = 0;             /* natural run length */
         int rrl;                /* run remains length */
-        find_run(&state, d, st, s, &rn);
+        find_run(&state, st, s, &rn);
 
         if (rn < minrun) {
             rrl = remains > minrun ? minrun : remains;
-            insertion_sort(&state, d, st, st + rrl, st + rn);
+            insertion_sort(&state, st, st + rrl, st + rn);
             rn = rrl;
         }
 
         assert(state.st.s < MAX_STACK_SIZE);
-        state.st.d[state.st.s] = (Run) {
-        .d = d + st,.s = rn};
+        state.st.d[state.st.s] = (Run) {.d = (uchar*)d + st * es, .s = rn};
         state.st.s++;
 
         merge_stack(&state);
@@ -368,6 +555,7 @@ void timsort(uintptr_t * d, const int s, Less less)
     } while (remains > 0);
 
     collapse_stack(&state);
+    free(state.tmp);
 }
 
 #undef IFL

@@ -26,14 +26,18 @@ ts: cleanobj $(app_obj) | $(BIN_DIR)
 # for tests
 # $(BIN_DEV): CFLAGS += -g
 # $(BIN_DEV): CFLAGS += -ggdb3 -fno-omit-frame-pointer
+# $(BIN_DEV): CFLAGS += -O0
 $(BIN_DEV): CFLAGS += -O2
 $(BIN_DEV): CFLAGS += -DDEBUG
 $(BIN_DEV): $(tst_obj) | $(BIN_DIR)
 	$(CC) -o $(BIN_DIR)/$@ $(addprefix $(BUILD_DIR)/,$(tst_obj)) $(LDFLAGS)
 
-perf:
+perf-record:
 	 $(PERF) record -c 1000 -g $(BIN_DIR)/$(BIN_DEV)
 	 $(PERF) report  -g
+
+perf-stat:
+	$(PERF) stat $(BIN_DIR)/$(BIN_DEV)
 
 main.o: timsort.h
 test.o: timsort.h

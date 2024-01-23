@@ -71,10 +71,37 @@ static void reverse(TsState * state, int l, int r)
     }
 }
 
+/* a1 > a2 > */
+static int move_on_desc_run(TsState * state, int l, int r, int *rn)
+{
+    while (l < r) {
+        if (state->cmp(Get(state, l), Get(state, l - 1)) < 0) {
+            (*rn)++;
+            l++;
+            continue;
+        }
+        break;
+    }
+    return l;
+}
+
+/* a1 <= a2 <= */
+static void move_on_asc_run(TsState * state, int l, int r, int *rn)
+{
+    while (l < r) {
+        if (state->cmp(Get(state, l), Get(state, l - 1)) >= 0) {
+            (*rn)++;
+            l++;
+            continue;
+        }
+        break;
+    }
+}
+
 /**
  * find  a1 <= a2 <= ... OR a1 > a2 > ...
- * b: begin positon
- * end: end of array
+ * l: begin positon
+ * r: end of array
  * rn: count run
 */
 static void find_run(TsState * state, int l, int r, int *rn)
@@ -95,33 +122,15 @@ static void find_run(TsState * state, int l, int r, int *rn)
         return;
     }
 
-
-    if (state->cmp(Get(state, l), Get(state, l - 1)) < 0) {
-        desc = 1;
-    }
-
+    desc = state->cmp(Get(state, l), Get(state, l - 1)) < 0;
     l++;
     (*rn)++;
 
     if (desc) {
-        for (; l < r; ++l) {
-            if (state->cmp(Get(state, l), Get(state, l - 1)) < 0) {
-                (*rn)++;
-            } else {
-                break;
-            }
-        }
-    } else {
-        for (; l < r; ++l) {
-            if (state->cmp(Get(state, l), Get(state, l - 1)) < 0) {
-                break;
-            } else {
-                (*rn)++;
-            }
-        }
-    }
-    if (desc) {
+        l = move_on_desc_run(state, l, r, rn);
         reverse(state, l_saved, l);
+    } else {
+        move_on_asc_run(state, l, r, rn);
     }
 }
 
@@ -146,48 +155,34 @@ static void insertion_sort(TsState * state, int l, int r, int stup)
     }
 }
 
-static int gallop(uchar * data, int s, int es, Comparator cmp, uchar * k)
-{
-    int i = 0;
-    int last = s - 1;
-
-    if (s < 1) {
+static int gallop(uchar * data, int s, int es, Comparator cmp, uchar * k) {
+    int i = 1;
+    if (s == 0) {
         return 0;
     }
 
-    if (cmp(data + i * es, k) < 0) {
-        i = 2;
-        if (i > last) {
-            i = last;
-        }
-    } else {
-        return 0;
-    }
-
-    for (;;) {
-        if (cmp(data + i * es, k) < 0) {
-            if (i == last) {
-                break;
-            }
+    while (i < s) {
+        if (cmp(data + (i - 1) * es, k) < 0) {
             i <<= 1;
             assert(i >= 0);
         } else {
             break;
         }
-        if (i > last) {
-            i = last;
-        }
     }
 
-    /* go_back */
-    for (;;) {
+    if (i >= s) {
+        i = s - 1;
+    }
+
+    while (i > 0) {
         if (cmp(data + i * es, k) < 0) {
+            i++;
             break;
         }
         i--;
     }
 
-    return i + 1;
+    return i;
 }
 
 /* merge of
@@ -204,6 +199,9 @@ void galop_merge(uchar * data, int ls, int rs, int es, Comparator cmp,
     int r_copy_count = 0;       /* count copy from the right */
     int l_copy_count = 0;       /* count copy from the left */
     int g = 0;
+    assert(tmp);
+    assert(tmp_swap);
+    assert(data);
     memcpy(tmp, l, ls * es);
 
     while (lp < ls || rp < rs) {

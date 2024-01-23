@@ -231,7 +231,6 @@ void gen_fisp_and_eight_shuffled(int *arr, const int s)
     iota(arr, fourth, 1);
     fy_shuffle(arr + eighth, eighth);
 }
-
 #if 0
 /* perf */
 int main()

@@ -4,6 +4,7 @@ BIN_DIR=bin
 VPATH=${BUILD_DIR}:${BIN_DIR}
 .DEFAULT_GOAL=ts
 
+PERF=/usr/lib/linux-tools/5.15.0-91-generic/perf
 CC=gcc
 CFLAGS=-std=gnu11\
 	-Wall -Wextra -Wpedantic\
@@ -24,10 +25,15 @@ ts: cleanobj $(app_obj) | $(BIN_DIR)
 
 # for tests
 # $(BIN_DEV): CFLAGS += -g
+# $(BIN_DEV): CFLAGS += -ggdb3 -fno-omit-frame-pointer
 $(BIN_DEV): CFLAGS += -O2
 $(BIN_DEV): CFLAGS += -DDEBUG
 $(BIN_DEV): $(tst_obj) | $(BIN_DIR)
 	$(CC) -o $(BIN_DIR)/$@ $(addprefix $(BUILD_DIR)/,$(tst_obj)) $(LDFLAGS)
+
+perf:
+	 $(PERF) record -c 1000 -g $(BIN_DIR)/$(BIN_DEV)
+	 $(PERF) report  -g
 
 main.o: timsort.h
 test.o: timsort.h

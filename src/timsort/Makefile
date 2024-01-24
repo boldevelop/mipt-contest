@@ -24,10 +24,10 @@ ts: cleanobj $(app_obj) | $(BIN_DIR)
 	$(CC) -o $(BIN_DIR)/$@ $(addprefix $(BUILD_DIR)/,$(app_obj)) $(LDFLAGS)
 
 # for tests
-# $(BIN_DEV): CFLAGS += -g
+$(BIN_DEV): CFLAGS += -g
 # $(BIN_DEV): CFLAGS += -ggdb3 -fno-omit-frame-pointer
-# $(BIN_DEV): CFLAGS += -O0
-$(BIN_DEV): CFLAGS += -O2
+$(BIN_DEV): CFLAGS += -O0
+# $(BIN_DEV): CFLAGS += -O2
 $(BIN_DEV): CFLAGS += -DDEBUG
 $(BIN_DEV): $(tst_obj) | $(BIN_DIR)
 	$(CC) -o $(BIN_DIR)/$@ $(addprefix $(BUILD_DIR)/,$(tst_obj)) $(LDFLAGS)

@@ -155,7 +155,8 @@ static void insertion_sort(TsState * state, int l, int r, int stup)
     }
 }
 
-static int gallop(uchar * data, int s, int es, Comparator cmp, uchar * k) {
+static int gallop(uchar * data, int s, int es, Comparator cmp, uchar * k)
+{
     int i = 1;
     if (s == 0) {
         return 0;
@@ -345,13 +346,7 @@ static void collapse_stack(TsState * state)
     }
 }
 
-/**
- * timsort for jagged array
- * d - pointer to begin data
- * s - elems count
- * less - funct return 1 if a < b
- */
-void timsort(void *const d, int s, int es, Comparator cmp)
+void timsort(void *const d, size_t s, size_t es, Comparator cmp)
 {
     int remains = s;
     int st = 0;
@@ -378,7 +373,8 @@ void timsort(void *const d, int s, int es, Comparator cmp)
         }
 
         assert(state.st.s < MAX_STACK_SIZE);
-        state.st.d[state.st.s] = (Run) {.d = (uchar *) d + st * es,.s = rn};
+        state.st.d[state.st.s] = (Run) {
+        .d = (uchar *) d + st * es,.s = rn};
         state.st.s++;
 
         merge_stack(&state);

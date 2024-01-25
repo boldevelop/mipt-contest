@@ -21,6 +21,10 @@ arr/: 2 equal parts of iota sorts part.
 arr*: 4 equal parts of iota sorts part but end of every parts shuffled.  
 arr!: all elems shuffled.  
 
+ts - timsort without galoping
+tg - timsort with galoping
+qs - qsort
+
 ```
                 arr        arr/        arr*         arr!   
 100

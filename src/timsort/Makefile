@@ -13,6 +13,7 @@ CFLAGS=-std=gnu11\
 LDFLAGS=-lm
 
 BIN_DEV=ts-d
+OPT_DEV=ts-p
 
 obj=${patsubst %.c,%.o,$(wildcard *.c)}
 app_obj = $(filter-out test.o,$(obj))
@@ -20,16 +21,22 @@ tst_obj = $(filter-out main.o,$(obj))
 
 # prod
 ts: CFLAGS += -O2
+ts: CFLAGS += -DNDEBUG
 ts: cleanobj $(app_obj) | $(BIN_DIR)
 	$(CC) -o $(BIN_DIR)/$@ $(addprefix $(BUILD_DIR)/,$(app_obj)) $(LDFLAGS)
 
 # for tests
-$(BIN_DEV): CFLAGS += -g
 # $(BIN_DEV): CFLAGS += -ggdb3 -fno-omit-frame-pointer
+$(BIN_DEV): CFLAGS += -g
 $(BIN_DEV): CFLAGS += -O0
-# $(BIN_DEV): CFLAGS += -O2
 $(BIN_DEV): CFLAGS += -DDEBUG
 $(BIN_DEV): $(tst_obj) | $(BIN_DIR)
+	$(CC) -o $(BIN_DIR)/$@ $(addprefix $(BUILD_DIR)/,$(tst_obj)) $(LDFLAGS)
+
+# for measure
+$(OPT_DEV): CFLAGS += -O2
+$(OPT_DEV): CFLAGS += -DNDEBUG
+$(OPT_DEV): cleanobj $(tst_obj) | $(BIN_DIR)
 	$(CC) -o $(BIN_DIR)/$@ $(addprefix $(BUILD_DIR)/,$(tst_obj)) $(LDFLAGS)
 
 perf-record:
@@ -47,6 +54,12 @@ test.o: timsort.h
 
 run: $(BIN_DEV)
 	$(BIN_DIR)/$(BIN_DEV)
+
+run-measure: $(OPT_DEV)
+	$(BIN_DIR)/$(OPT_DEV)
+
+valgrind: $(OPT_DEV)
+	valgrind $(BIN_DIR)/$(OPT_DEV)
 
 gdb: $(BIN_DEV)
 	gdb $(BIN_DIR)/$(BIN_DEV)

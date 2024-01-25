@@ -374,7 +374,9 @@ void timsort(void *const d, size_t s, size_t es, Comparator cmp)
 
         assert(state.st.s < MAX_STACK_SIZE);
         state.st.d[state.st.s] = (Run) {
-        .d = (uchar *) d + st * es,.s = rn};
+            .d = (uchar *) d + st * es,
+            .s = rn
+        };
         state.st.s++;
 
         merge_stack(&state);

@@ -7,6 +7,9 @@ https://github.com/python/cpython/blob/v3.7.17/Objects/listobject.c#L2158
 ```
 > make
 > ./bin/ts < ./in/1.dat
+
+# run measure
+> make run-measure
 ```
 
 ## Perf

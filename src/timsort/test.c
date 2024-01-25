@@ -229,7 +229,7 @@ int main()
 {
     /* merge tests */
     {
-        int is_print = 1;
+        int is_print = 0;
         int t_num = 1;
         int t_passed = 0;
 

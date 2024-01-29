@@ -6,24 +6,24 @@ LDFLAGS = -lm
 BUILD_DIR = build
 BIN_DIR = bin
 
-bins := $(patsubst %.c,%.bin,$(wildcard *.c))
+bins := $(patsubst %.c,%,$(wildcard *.c))
 
 all: $(bins)
 
-%.bin: %.c | $(BIN_DIR)
+%: %.c | $(BIN_DIR)
 	$(CC) -o $(BIN_DIR)/$@ $(basename $@).c $(CFLAGS) $(LDFLAGS)
 
 lint:
 	VERSION_CONTROL=none indent ./*.c -kr -as --no-tabs
 
 valgrind-al: all
-	valgrind $(BIN_DIR)/al.bin
+	valgrind $(BIN_DIR)/al
 
 valgrind-rbs: all
-	valgrind --leak-check=full $(BIN_DIR)/rbs.bin
+	valgrind --leak-check=full $(BIN_DIR)/rbs
 
 valgrind-lr: all
-	valgrind --leak-check=full $(BIN_DIR)/lr.bin
+	valgrind --leak-check=full $(BIN_DIR)/lr
 
 clean:
 	rm -rf $(BIN_DIR)

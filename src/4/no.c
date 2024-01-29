@@ -48,7 +48,7 @@ Tree *tr_add(Tree * tr, int data)
 
 void tr_preorder(Tree * tr, void (*visit)(int data))
 {
-    if(tr == NULL) {
+    if (tr == NULL) {
         return;
     }
     visit(tr->data);

@@ -81,9 +81,36 @@ int find_hm(HashMap* hm, char* key);
 void insert_hm(HashMap* hm, char* key);
 void destroy_hm(HashMap* hm);
 
+void flush() {
+    while (getchar() != '\n');
+}
+
+int read_str(int strl) {
+    int c;
+    char buf[1024];
+    int bi = 0;
+    int read = 0;
+    do {
+        c = getchar();
+        strl--;
+        if (isspace(c) || c == EOF) {
+            buf[bi++] = '\0';
+            read++;
+            // printf("out: %s\n", buf);
+            bi = 0;
+            if (c == EOF) {
+                break;
+            }
+        } else {
+            buf[bi++] = c;
+        }
+    } while (strl >= 0);
+    return read;
+    // printf("READ: %d\n", read);
+}
+
 int main() {
-    char* wrds[10][512];
-    char word[512];
+    char wrds[10][512];
     int i = 0;
     int c;
     // srand(738547485u);
@@ -97,13 +124,26 @@ int main() {
     l = readint();
     #endif
 
+    int a, l, s;
+    int t1, t2;
     char buf[1024];
-    int bi = 0; 
+    int bi = 0;
+    a = readint();
+    l = readint();
+    flush();
+    t1 = read_str(l);
+    s = readint();
+    flush();
+    t2 = read_str(s);
+    printf("%d %d %d\n", a, l, s);
+    printf("%d %d\n", t1, t2);
+    return 0;
+    while (getchar() != '\n');
     do {
         c = getchar();
         if (isspace(c) || c == EOF || c == '\n') {
             buf[bi++] = '\0';
-            strcpy(wrds[i], buf);
+            strcpy(*(wrds + i), buf);
             i++;
             bi = 0;
             if (c == EOF || i == 3) {
@@ -112,14 +152,14 @@ int main() {
             continue;
         }
         buf[bi++] = c;
-    } while (1);
+        l--;
+    } while (l > 0);
     // while ((scanf("%s", &word)) == 0) {
     //     wrds[i++] = word;
     // }
     for (int j = 0; j < i; ++j) {
         printf("%s\n", wrds[j]);
     }
-    return;
 
     // filter_words();
 }
@@ -227,7 +267,6 @@ HashMap* init_hm(int strl) {
             s = pow_2[i];
         }
     }
-
 
     return alloc_hm(p, s);
 }

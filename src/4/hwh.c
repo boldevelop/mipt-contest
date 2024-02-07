@@ -7,8 +7,6 @@
     p: простое число
     Строки
     h(c1..cl) = hi( SUM(i, l, ci * r^(l-i)) % p)
-
-    https://raw.githubusercontent.com/dwyl/english-words/master/words.txt
 */
 
 #include <stdio.h>
@@ -16,8 +14,6 @@
 #include <string.h>
 #include <assert.h>
 #include <ctype.h>
-
-/* 22 24 30 22 18 26 16 28 30 22 18  */
 
 int readint()
 {
@@ -259,10 +255,19 @@ HashMap *alloc_hm(unsigned p, unsigned s)
 
 Bucket *alloc_bucket(char *key)
 {
+    size_t k_l = strlen(key) + 1;
+
     Bucket *b = calloc(1, sizeof(Bucket));
-    if (!b)
+    if (!b) {
         abort();
-    b->key = key;
+    }
+
+    b->key = calloc(k_l, sizeof(char));
+    if (!b->key) {
+        abort();
+    }
+
+    strcpy(b->key, key);
     b->d = 1;
     return b;
 }
@@ -271,6 +276,7 @@ void free_buckets(Bucket * cur)
 {
     while (cur) {
         Bucket *tmp = cur->next;
+        free(cur->key);
         free(cur);
         cur = tmp;
     }

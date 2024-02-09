@@ -41,10 +41,10 @@ typedef struct {
     Bucket **buckets;
 } HashMap;
 
-HashMap *init_hm(int strl);
-int find_hm(HashMap * hm, char *key);
-void insert_hm(HashMap * hm, char *key);
-void destroy_hm(HashMap * hm);
+HashMap *hm_ctor(int strl);
+int hm_find(HashMap * hm, char *key);
+void hm_insert(HashMap * hm, char *key);
+void hm_dctor(HashMap * hm);
 
 void flush()
 {
@@ -94,13 +94,13 @@ int main()
     exp_a = readint();
     answers = alloc_arri(exp_a);
     text_l = readint();
-    hm = init_hm(text_l);
+    hm = hm_ctor(text_l);
 
     text_l++;
     flush();
     do {
         text_l = read_word(text_l, buf);
-        insert_hm(hm, buf);
+        hm_insert(hm, buf);
     } while (text_l);
 
     text_l = readint();
@@ -108,7 +108,7 @@ int main()
     flush();
     do {
         text_l = read_word(text_l, buf);
-        answers[ind++] = find_hm(hm, buf);
+        answers[ind++] = hm_find(hm, buf);
     } while (text_l);
 
     for (int i = 0; i < exp_a; ++i) {
@@ -116,7 +116,7 @@ int main()
     }
     printf("\n");
 
-    destroy_hm(hm);
+    hm_dctor(hm);
     free(answers);
 
     return 0;
@@ -148,7 +148,7 @@ unsigned rand_range(unsigned l, unsigned r)
 HashMap *alloc_hm(unsigned p, unsigned s);
 Bucket *alloc_bucket(char *key);
 
-HashMap *init_hm(int strl)
+HashMap *hm_ctor(int strl)
 {
     static unsigned pow_2[RANGE_POW_2];
     /*  words in str max 'strl / 2',
@@ -195,7 +195,7 @@ unsigned hs(HashMap * hm, char *key)
     return sum & (hm->s - 1);
 }
 
-int find_hm(HashMap * hm, char *key)
+int hm_find(HashMap * hm, char *key)
 {
     unsigned ind;
     Bucket *cur;
@@ -217,7 +217,7 @@ int find_hm(HashMap * hm, char *key)
     return 0;
 }
 
-void insert_hm(HashMap * hm, char *key)
+void hm_insert(HashMap * hm, char *key)
 {
     unsigned ind;
     Bucket *cur, *prev;
@@ -287,7 +287,7 @@ void free_buckets(Bucket * cur)
     }
 }
 
-void destroy_hm(HashMap * hm)
+void hm_dctor(HashMap * hm)
 {
     for (unsigned i = 0; i < hm->s; ++i) {
         Bucket *cur = hm->buckets[i];

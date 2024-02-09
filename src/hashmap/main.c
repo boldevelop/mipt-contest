@@ -61,13 +61,13 @@ int main()
     exp_a = readint();
     answers = alloc_arri(exp_a);
     text_l = readint();
-    hm = init_hm(text_l);
+    hm = hm_ctor(text_l);
 
     text_l++;
     flush();
     do {
         text_l = read_word(text_l, buf);
-        insert_hm(hm, buf);
+        hm_insert(hm, buf);
     } while (text_l);
 
     text_l = readint();
@@ -75,7 +75,7 @@ int main()
     flush();
     do {
         text_l = read_word(text_l, buf);
-        answers[ind++] = find_hm(hm, buf);
+        answers[ind++] = hm_find(hm, buf);
     } while (text_l);
 
     for (int i = 0; i < exp_a; ++i) {
@@ -83,7 +83,7 @@ int main()
     }
     printf("\n");
 
-    destroy_hm(hm);
+    hm_dctor(hm);
     free(answers);
 
     return 0;

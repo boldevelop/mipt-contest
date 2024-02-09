@@ -1,24 +1,11 @@
 #ifndef HASHMAP_H
 #define HASHMAP_H
 
-struct bucket_t {
-    struct bucket_t *next;
-    char *key;
-    int d;
-};
-typedef struct bucket_t Bucket;
+typedef void *HashMap;
 
-typedef struct {
-    unsigned a;
-    unsigned b;
-    unsigned p;
-    unsigned s;
-    Bucket **buckets;
-} HashMap;
-
-HashMap *init_hm(int strl);
-int find_hm(HashMap *hm, char *key);
-void insert_hm(HashMap *hm, char *key);
-void destroy_hm(HashMap *hm);
+HashMap hm_ctor(int strl);
+int hm_find(HashMap hm, char *key);
+void hm_insert(HashMap hm, char *key);
+void hm_dctor(HashMap hm);
 
 #endif

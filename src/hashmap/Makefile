@@ -36,8 +36,8 @@ main.o: hashmap.h
 run: $(BIN_DEV)
 	$(BIN_DIR)/$(BIN_DEV)
 
-valgrind: $(OPT_DEV)
-	valgrind $(BIN_DIR)/$(OPT_DEV)
+valgrind: $(BIN_DEV)
+	valgrind $(BIN_DIR)/$(BIN_DEV) < ./in/1.dat
 
 gdb: $(BIN_DEV)
 	gdb $(BIN_DIR)/$(BIN_DEV)

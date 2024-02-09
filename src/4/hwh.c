@@ -38,6 +38,7 @@ typedef struct {
     unsigned b;
     unsigned p;
     unsigned s;
+    unsigned pow2;
     Bucket **buckets;
 } HashMap;
 
@@ -138,7 +139,7 @@ unsigned pow_mod(unsigned n, unsigned k)
     return prod;
 }
 
-#define MAX_POW_2 10
+#define RANGE_POW_2 10
 
 unsigned rand_range(unsigned l, unsigned r)
 {
@@ -150,7 +151,7 @@ Bucket *alloc_bucket(char *key);
 
 HashMap *init_hm(int strl)
 {
-    static unsigned pow_2[MAX_POW_2];
+    static unsigned pow_2[RANGE_POW_2];
     /*  words in str max 'strl / 2',
        so take 'words*2' */
     unsigned posible_count_words = strl;
@@ -159,15 +160,20 @@ HashMap *init_hm(int strl)
     // unsigned p = 2 * 1000000000 + 11;
 
     if (!pow_2[0]) {
-        for (int i = MAX_POW_2; i < 20; ++i) {
-            pow_2[i - MAX_POW_2] = pow_mod(2, i);
+        for (int i = RANGE_POW_2; i < 20; ++i) {
+            pow_2[i - RANGE_POW_2] = pow_mod(2, i);
         }
     }
 
-    for (int i = 0; i < MAX_POW_2; ++i) {
+    for (int i = 0; i < RANGE_POW_2; ++i) {
         if (posible_count_words < pow_2[i]) {
             s = pow_2[i];
+            break;
         }
+    }
+
+    if (s == 0) {
+        s = pow_2[RANGE_POW_2 - 1];
     }
 
     return alloc_hm(p, s);
@@ -187,7 +193,7 @@ unsigned hs(HashMap * hm, char *key)
     sum %= hm->p;
 
     sum = (hm->a * sum + hm->b) % hm->p;
-    return sum;
+    return sum & (hm->s - 1);
 }
 
 int find_hm(HashMap * hm, char *key)
@@ -197,7 +203,7 @@ int find_hm(HashMap * hm, char *key)
 
     assert(hm);
 
-    ind = hs(hm, key) % hm->s;
+    ind = hs(hm, key);
     cur = hm->buckets[ind];
     if (!cur) {
         return 0;
@@ -219,7 +225,7 @@ void insert_hm(HashMap * hm, char *key)
 
     assert(hm);
 
-    ind = hs(hm, key) % hm->s;
+    ind = hs(hm, key);
     cur = hm->buckets[ind];
     if (!cur) {
         hm->buckets[ind] = alloc_bucket(key);

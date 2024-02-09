@@ -1,126 +1,18 @@
-/* 
-    h(S)  =  S[0]  +  S[1] * P  +  S[2] * P^2  +  S[3] * P^3  +  ...  +  S[N] * P^N
-
-    hi(x) = ((ax + b) % p) % m
-    a, b - любые
-    m: мощность хэша
-    p: простое число
-    Строки
-    h(c1..cl) = hi( SUM(i, l, ci * r^(l-i)) % p)
-*/
-
-#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
-#include <ctype.h>
 
-int readint()
+#include "hashmap.h"
+
+#define RANGE_POW_2 10
+
+unsigned rand_range(unsigned l, unsigned r)
 {
-    int n;
-    if (scanf("%d", &n) != 1) {
-        abort();
-    }
-    return n;
+    return l + rand() / (RAND_MAX / (r - l + 1u) + 1u);
 }
 
-unsigned pow_mod(unsigned n, unsigned k);
-
-struct bucket_t {
-    struct bucket_t *next;
-    char *key;
-    int d;
-};
-typedef struct bucket_t Bucket;
-
-typedef struct {
-    unsigned a;
-    unsigned b;
-    unsigned p;
-    unsigned s;
-    Bucket **buckets;
-} HashMap;
-
-HashMap *init_hm(int strl);
-int find_hm(HashMap * hm, char *key);
-void insert_hm(HashMap * hm, char *key);
-void destroy_hm(HashMap * hm);
-
-void flush()
-{
-    while (getchar() != '\n');
-}
-
-int read_word(int strl, char *buf)
-{
-    int c;
-    int bi = 0;
-    do {
-        c = getchar();
-        strl--;
-
-        if (isspace(c) || c == EOF) {
-            buf[bi++] = '\0';
-            break;
-        }
-
-        buf[bi++] = c;
-    } while (strl > 0);
-
-    return strl;
-}
-
-#define BUF_S 1024
-
-int *alloc_arri(size_t s)
-{
-    int *buf = calloc(s, sizeof(int));
-    if (!buf) {
-        abort();
-    }
-    return buf;
-}
-
-int main()
-{
-    int exp_a, text_l;
-    char buf[BUF_S];
-    int *answers;
-    int ind = 0;
-    HashMap *hm;
-
-    srand(738547485u);
-
-    exp_a = readint();
-    answers = alloc_arri(exp_a);
-    text_l = readint();
-    hm = init_hm(text_l);
-
-    text_l++;
-    flush();
-    do {
-        text_l = read_word(text_l, buf);
-        insert_hm(hm, buf);
-    } while (text_l);
-
-    text_l = readint();
-    text_l++;
-    flush();
-    do {
-        text_l = read_word(text_l, buf);
-        answers[ind++] = find_hm(hm, buf);
-    } while (text_l);
-
-    for (int i = 0; i < exp_a; ++i) {
-        printf("%d ", answers[i]);
-    }
-    printf("\n");
-
-    destroy_hm(hm);
-    free(answers);
-
-    return 0;
-}
+HashMap *alloc_hm(unsigned p, unsigned s);
+Bucket *alloc_bucket(char *key);
 
 /* n^k mod sizeof(unsigned) */
 unsigned pow_mod(unsigned n, unsigned k)
@@ -137,16 +29,6 @@ unsigned pow_mod(unsigned n, unsigned k)
     }
     return prod;
 }
-
-#define RANGE_POW_2 10
-
-unsigned rand_range(unsigned l, unsigned r)
-{
-    return l + rand() / (RAND_MAX / (r - l + 1u) + 1u);
-}
-
-HashMap *alloc_hm(unsigned p, unsigned s);
-Bucket *alloc_bucket(char *key);
 
 HashMap *init_hm(int strl)
 {
@@ -178,6 +60,17 @@ HashMap *init_hm(int strl)
     return alloc_hm(p, s);
 }
 
+
+/* 
+    h(S)  =  S[0]  +  S[1] * P  +  S[2] * P^2  +  S[3] * P^3  +  ...  +  S[N] * P^N
+
+    hi(x) = ((ax + b) % p) % m
+    a, b - любые
+    m: мощность хэша (степень 2)
+    p: простое число
+    Строки
+    h(c1..cl) = hi( SUM(i, l, ci * r^(l-i)) % p)
+*/
 unsigned hs(HashMap * hm, char *key)
 {
     unsigned r = 1;

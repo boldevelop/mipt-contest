@@ -4,7 +4,7 @@
 
 #include "hashmap.h"
 
-int readint()
+int readint(void)
 {
     int n;
     if (scanf("%d", &n) != 1) {
@@ -13,7 +13,7 @@ int readint()
     return n;
 }
 
-void flush()
+void flush(void)
 {
     while (getchar() != '\n');
 }
@@ -54,7 +54,7 @@ int main()
     char buf[BUF_S];
     int *answers;
     int ind = 0;
-    HashMap *hm;
+    HashMap hm;
 
     srand(738547485u);
 

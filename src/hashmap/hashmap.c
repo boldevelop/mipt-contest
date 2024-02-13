@@ -20,6 +20,9 @@ typedef struct {
     Bucket **buckets;
 } HashMapImpl;
 
+unsigned PRIME = 10000019;
+// unsigned PRIME = 2 * 1000000000 + 11;
+
 static unsigned rand_range(unsigned l, unsigned r)
 {
     return l + rand() / (RAND_MAX / (r - l + 1u) + 1u);
@@ -41,18 +44,23 @@ static unsigned pow_mod(unsigned n, unsigned k)
     return prod;
 }
 
+static void *hm_calloc(size_t nmemb, size_t size)
+{
+    void *b = calloc(nmemb, size);
+    if (!b) {
+        abort();
+    }
+    return b;
+}
+
 static HashMapImpl *hm_alloc(unsigned p, unsigned s)
 {
-    HashMapImpl *hm = calloc(1, sizeof(HashMapImpl));
-    if (!hm)
-        abort();
+    HashMapImpl *hm = hm_calloc(1, sizeof(HashMapImpl));
     hm->p = p;
     hm->a = rand_range(1, p - 1);
     hm->b = rand_range(0, p - 1);
     hm->s = s;
-    hm->buckets = calloc(s, sizeof(Bucket *));
-    if (!hm->buckets)
-        abort();
+    hm->buckets = hm_calloc(s, sizeof(Bucket *));
     return hm;
 }
 
@@ -60,15 +68,8 @@ static Bucket *alloc_bucket(char *key)
 {
     size_t k_l = strlen(key) + 1;
 
-    Bucket *b = calloc(1, sizeof(Bucket));
-    if (!b) {
-        abort();
-    }
-
-    b->key = calloc(k_l, sizeof(char));
-    if (!b->key) {
-        abort();
-    }
+    Bucket *b = hm_calloc(1, sizeof(Bucket));
+    b->key = hm_calloc(k_l, sizeof(char));
 
     strcpy(b->key, key);
     b->d = 1;
@@ -83,6 +84,32 @@ static void free_buckets(Bucket * cur)
         free(cur);
         cur = tmp;
     }
+}
+
+static unsigned calc_size(unsigned desired_size)
+{
+    static unsigned pow_2[RANGE_POW_2];
+
+    unsigned s = 0;
+
+    if (!pow_2[0]) {
+        for (int i = RANGE_POW_2; i < 20; ++i) {
+            pow_2[i - RANGE_POW_2] = pow_mod(2, i);
+        }
+    }
+
+    for (int i = 0; i < RANGE_POW_2; ++i) {
+        if (desired_size < pow_2[i]) {
+            s = pow_2[i];
+            break;
+        }
+    }
+
+    if (s == 0) {
+        s = pow_2[RANGE_POW_2 - 1];
+    }
+
+    return s;
 }
 
 /* 
@@ -109,37 +136,20 @@ static inline unsigned hash(HashMapImpl * hm, char *key)
     sum %= hm->p;
 
     sum = (hm->a * sum + hm->b) % hm->p;
-    return sum & (hm->s - 1);
+    return sum;
+}
+
+static inline unsigned get_index(unsigned h, unsigned s)
+{
+    return h & (s - 1);
 }
 
 HashMap hm_ctor(int strl)
 {
-    static unsigned pow_2[RANGE_POW_2];
     /*  words in str max 'strl / 2',
        so take 'words*2' */
-    unsigned posible_count_words = strl;
-    unsigned s = 0;
-    unsigned p = 10000019;
-    // unsigned p = 2 * 1000000000 + 11;
-
-    if (!pow_2[0]) {
-        for (int i = RANGE_POW_2; i < 20; ++i) {
-            pow_2[i - RANGE_POW_2] = pow_mod(2, i);
-        }
-    }
-
-    for (int i = 0; i < RANGE_POW_2; ++i) {
-        if (posible_count_words < pow_2[i]) {
-            s = pow_2[i];
-            break;
-        }
-    }
-
-    if (s == 0) {
-        s = pow_2[RANGE_POW_2 - 1];
-    }
-
-    return hm_alloc(p, s);
+    unsigned s = calc_size(strl);
+    return hm_alloc(PRIME, s);
 }
 
 int hm_find(HashMap hmp, char *key)
@@ -150,7 +160,7 @@ int hm_find(HashMap hmp, char *key)
 
     assert(hm);
 
-    ind = hash(hm, key);
+    ind = get_index(hash(hm, key), hm->s);
     cur = hm->buckets[ind];
     if (!cur) {
         return 0;
@@ -173,7 +183,7 @@ void hm_insert(HashMap hmp, char *key)
 
     assert(hm);
 
-    ind = hash(hm, key);
+    ind = get_index(hash(hm, key), hm->s);
     cur = hm->buckets[ind];
     if (!cur) {
         hm->buckets[ind] = alloc_bucket(key);
@@ -201,6 +211,52 @@ void hm_dctor(HashMap hmp)
     }
     free(hm->buckets);
     free(hm);
+}
+
+int hm_rehash(HashMap hmp, int desired_size)
+{
+    HashMapImpl *hm = hmp;
+    Bucket **n_buckets;
+    Bucket *cur, *next, *inserted_b;
+    unsigned possible_size = calc_size(desired_size);
+    unsigned n_ind;
+
+    if (possible_size == hm->s) {
+        return 0;
+    }
+
+    n_buckets = hm_calloc(possible_size, sizeof(Bucket *));
+
+    for (unsigned i = 0; i < hm->s; ++i) {
+        cur = hm->buckets[i];
+
+        while (cur) {
+            next = cur->next;
+            cur->next = NULL;
+
+            n_ind = get_index(hash(hm, cur->key), possible_size);
+            inserted_b = n_buckets[n_ind];
+
+            if (!inserted_b) {
+                n_buckets[n_ind] = cur;
+                cur = next;
+                continue;
+            }
+
+            while (inserted_b->next) {
+                inserted_b = inserted_b->next;
+            }
+
+            inserted_b->next = cur;
+            cur = next;
+        }
+    }
+
+    free(hm->buckets);
+    hm->buckets = n_buckets;
+    hm->s = possible_size;
+
+    return 1;
 }
 
 #undef RANGE_POW_2

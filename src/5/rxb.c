@@ -4,8 +4,8 @@
 #include <stdlib.h>
 #include <regex.h>
 
-const char* MAIL_RE = "^([a-z]|[A-Z]|[0-9]|.)+@[a-zA-Z]*\\.[a-zA-Z]*$";
-const char* TEXT_MAIL = "a.test98@qwe.com";
+const char* MAIL_RE = "^[a-zA-Z0-9.]+@[a-zA-Z]+(\\.[a-zA-Z]+)+$";
+const char* TEXT_MAIL = "hello.my.spambot@spambot.org.ru";
 
 #define ARRAY_SIZE(array) (sizeof((array)) / sizeof((array)[0]))
 char buf[1024];
@@ -46,7 +46,7 @@ void is_valid_email(const regex_t* rx, const char* email) {
 
 
 void compile_regex(regex_t* rx, const char* regexstr) {
-    int ret = regcomp(rx, regexstr, 0);
+    int ret = regcomp(rx, regexstr, REG_EXTENDED);
     if (ret != 0) {
         regerror(ret, rx, buf, sizeof(buf));
 	    fprintf(stderr, "Error: regcomp: %s\n", buf);
@@ -57,7 +57,11 @@ void compile_regex(regex_t* rx, const char* regexstr) {
 int main() {
     regex_t rx;
     compile_regex(&rx, MAIL_RE);
+#if 1
     scanf("%s", buf);
     is_valid_email(&rx, buf);
+#else
+    is_valid_email(&rx, TEXT_MAIL);
+#endif
     regfree(&rx);
 }

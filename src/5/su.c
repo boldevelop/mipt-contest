@@ -17,7 +17,7 @@ char *strstrci(char const *needle, char const *haystack)
     int end = h_l - n_l + 1;
 
     if (n_l == 0) {
-        return (char*)haystack;
+        return (char *) haystack;
     }
 
     if (h_l == 0) {
@@ -86,13 +86,14 @@ int main()
     }
 
     {
-        char const *needle = "egubq", *src = "UvsegUBqeOVQpApROEhEVfEhFjWjVrvCkfsJHHSLmAEIanSGnYQYMSlCKBNSVgrGptAHMWRVQSDSajqdjdTEaNBkKvUmnDNmalQD";
+        char const *needle = "egubq", *src =
+            "UvsegUBqeOVQpApROEhEVfEhFjWjVrvCkfsJHHSLmAEIanSGnYQYMSlCKBNSVgrGptAHMWRVQSDSajqdjdTEaNBkKvUmnDNmalQD";
         char *pos1 = strstrci(needle, src);
         assert(pos1 != NULL);
     }
     {
         char const *needle = "qwewe", *src = "";
-        char * pos1 = strstrci(needle, src);
+        char *pos1 = strstrci(needle, src);
         assert(pos1 == NULL);
     }
 }

@@ -4,13 +4,14 @@
 #include <stdlib.h>
 #include <regex.h>
 
-const char* MAIL_RE = "^[a-zA-Z0-9.]+@[a-zA-Z]+(\\.[a-zA-Z]+)+$";
-const char* TEXT_MAIL = "hello.my.spambot@spambot.org.ru";
+const char *MAIL_RE = "^[a-zA-Z0-9.]+@[a-zA-Z]+(\\.[a-zA-Z]+)+$";
+const char *TEXT_MAIL = "hello.my.spambot@spambot.org.ru";
 
 #define ARRAY_SIZE(array) (sizeof((array)) / sizeof((array)[0]))
 char buf[1024];
 
-void is_valid_email(const regex_t* rx, const char* email) {
+void is_valid_email(const regex_t * rx, const char *email)
+{
     regmatch_t pmatch[3];
 #ifdef DEBUG
     regoff_t offset, length;
@@ -32,10 +33,10 @@ void is_valid_email(const regex_t* rx, const char* email) {
         length = pmatch[0].rm_eo - pmatch[0].rm_so;
 
         printf("%s\n", email);
-        printf("%.*s\n", (int)length, email + offset);
+        printf("%.*s\n", (int) length, email + offset);
 
         for (unsigned long j = 0; j < ARRAY_SIZE(pmatch); j++) {
-            if (pmatch [j].rm_so == -1)
+            if (pmatch[j].rm_so == -1)
                 break;
         }
     }
@@ -45,16 +46,18 @@ void is_valid_email(const regex_t* rx, const char* email) {
 }
 
 
-void compile_regex(regex_t* rx, const char* regexstr) {
+void compile_regex(regex_t * rx, const char *regexstr)
+{
     int ret = regcomp(rx, regexstr, REG_EXTENDED);
     if (ret != 0) {
         regerror(ret, rx, buf, sizeof(buf));
-	    fprintf(stderr, "Error: regcomp: %s\n", buf);
+        fprintf(stderr, "Error: regcomp: %s\n", buf);
         exit(EXIT_FAILURE);
     }
 }
 
-int main() {
+int main()
+{
     regex_t rx;
     compile_regex(&rx, MAIL_RE);
 #if 1

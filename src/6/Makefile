@@ -13,6 +13,9 @@ all: $(bins)
 %: %.c | $(BIN_DIR)
 	$(CC) -o $(BIN_DIR)/$@ $(basename $@).c $(CFLAGS) $(LDFLAGS)
 
+mk1: mk
+	./bin/mk ./in/mk/1.enc <./in/mk/1
+
 lint:
 	VERSION_CONTROL=none indent ./*.c -kr -as --no-tabs
 

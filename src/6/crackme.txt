@@ -1,0 +1,72 @@
+https://shell-storm.org/x86doc/
+
+esp register is pointing to the top of the stack
+
+gdb -q  ./bin
+(gdb) layout asm
+(gdb) disas function_name
+(gdb) b *0x080483f4
+(gdb) i r // examine registers
+(gdb) i r esp eip // examine multi registers
+
+(gdb) x 0x80483fd // examine memory
+0x80483fd <main+9>:     0x5c2444c7
+
+// examine what is inside of the memory address pointed by eip
+(gdb) x $eip
+0x80483fd <main+9>:     0x5c2444c7
+
+
+(gdb) x/x $eax // Hexadecimal format
+0xbffff864:     0xbffff975
+(gdb) x/o $eax // Octal format
+0xbffff864:     027777774565
+(gdb) x/u $eax // Unsigned decimal format
+0xbffff864:     3221223797
+(gdb) x/t $eax // Binary format
+0xbffff864:     10111111111111111111100101110101
+(gdb) x/d $eax // Decimal format
+0xbffff864:     -1073743499
+(gdb) x/s 0x8048529 // string format
+0x8048529:       "Try again?"
+
+eip register points to a CPU instruction
+(gdb) x/i $eip
+0x80483fd <main+9>:     mov    DWORD PTR [esp+0x5c],0x0
+
+examine 20 words from the top of the stack.
+(gdb) x/20x $esp
+0xbffff750:     0x00000000      0x00000001      0xb7fff8f8      0xb7f0186e
+0xbffff760:     0xb7fd7ff4      0xb7ec6165      0xbffff778      0xb7eada75
+0xbffff770:     0xb7fd7ff4      0x08049620      0xbffff788      0x080482e8
+0xbffff780:     0xb7ff1040      0x08049620      0xbffff7b8      0x08048469
+0xbffff790:     0xb7fd8304      0xb7fd7ff4      0x08048450      0xbffff7b8
+
+ni
+si
+
+shl al, 1 ; сдвигаем число в AL на 1 разряд влево = 00000101 << 1
+
+cm1.x
+b *0x5555555550c0
+
+__libc_start_main_impl
+call __libc_start_call_main из <__libc_start_main_impl+123>
+
+64-bit	32-bit	16-bit	8 high bits 8-bit
+RAX	    EAX	    AX	    AH	        AL	        Accumulator
+RBX	    EBX	    BX	    BH	        BL	        Base
+RCX	    ECX	    CX	    CH	        CL	        Counter
+RDX	    EDX	    DX	    DH	        DL	        Data (commonly extends the A register)
+RSI	    ESI	    SI	    N/A	        SIL	        Source index for string operations
+RDI	    EDI	    DI	    N/A	        DIL	        Destination index for string operations
+RSP	    ESP	    SP	    N/A	        SPL	        Stack Pointer
+RBP	    EBP	    BP	    N/A	        BPL	        Base Pointer (meant for stack frames)
+R8	    R8D	    R8W	    N/A	        R8B	        General purpose
+R9	    R9D	    R9W	    N/A	        R9B	        General purpose
+R10	    R10D	R10W	N/A	        R10B	    General purpose
+R11	    R11D	R11W	N/A	        R11B	    General purpose
+R12	    R12D	R12W	N/A	        R12B	    General purpose
+R13	    R13D	R13W	N/A	        R13B	    General purpose
+R14	    R14D	R14W	N/A	        R14B	    General purpose
+R15	    R15D	R15W	N/A	        R15B	    General purpose

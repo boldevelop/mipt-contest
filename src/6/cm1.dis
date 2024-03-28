@@ -1,0 +1,324 @@
+
+./cm1.x:     file format elf64-x86-64
+
+
+Disassembly of section .init:
+
+0000000000001000 <.init>:
+    1000:	f3 0f 1e fa          	endbr64 
+    1004:	48 83 ec 08          	sub    rsp,0x8
+    1008:	48 8b 05 d1 2f 00 00 	mov    rax,QWORD PTR [rip+0x2fd1]        # 3fe0 <__fprintf_chk@plt+0x2f30>
+    100f:	48 85 c0             	test   rax,rax
+    1012:	74 02                	je     1016 <__cxa_finalize@plt-0x5a>
+    1014:	ff d0                	call   rax <- пропускаяем 
+    1016:	48 83 c4 08          	add    rsp,0x8
+    101a:	c3                   	ret    
+
+Disassembly of section .plt:
+
+0000000000001020 <.plt>:
+    1020:	ff 35 7a 2f 00 00    	push   QWORD PTR [rip+0x2f7a]        # 3fa0 <__fprintf_chk@plt+0x2ef0>
+    1026:	f2 ff 25 7b 2f 00 00 	bnd jmp QWORD PTR [rip+0x2f7b]        # 3fa8 <__fprintf_chk@plt+0x2ef8>
+    102d:	0f 1f 00             	nop    DWORD PTR [rax]
+    1030:	f3 0f 1e fa          	endbr64 
+    1034:	68 00 00 00 00       	push   0x0
+    1039:	f2 e9 e1 ff ff ff    	bnd jmp 1020 <__cxa_finalize@plt-0x50>
+    103f:	90                   	nop
+    1040:	f3 0f 1e fa          	endbr64 
+    1044:	68 01 00 00 00       	push   0x1
+    1049:	f2 e9 d1 ff ff ff    	bnd jmp 1020 <__cxa_finalize@plt-0x50>
+    104f:	90                   	nop
+    1050:	f3 0f 1e fa          	endbr64 
+    1054:	68 02 00 00 00       	push   0x2
+    1059:	f2 e9 c1 ff ff ff    	bnd jmp 1020 <__cxa_finalize@plt-0x50>
+    105f:	90                   	nop
+    1060:	f3 0f 1e fa          	endbr64 
+    1064:	68 03 00 00 00       	push   0x3
+    1069:	f2 e9 b1 ff ff ff    	bnd jmp 1020 <__cxa_finalize@plt-0x50>
+    106f:	90                   	nop
+
+Disassembly of section .plt.got:
+
+0000000000001070 <__cxa_finalize@plt>:
+    1070:	f3 0f 1e fa          	endbr64 
+    1074:	f2 ff 25 75 2f 00 00 	bnd jmp QWORD PTR [rip+0x2f75]        # 3ff0 <__fprintf_chk@plt+0x2f40>
+    107b:	0f 1f 44 00 00       	nop    DWORD PTR [rax+rax*1+0x0]
+
+Disassembly of section .plt.sec:
+
+0000000000001080 <__printf_chk@plt>:
+    1080:	f3 0f 1e fa          	endbr64 
+    1084:	f2 ff 25 25 2f 00 00 	bnd jmp QWORD PTR [rip+0x2f25]        # 3fb0 <__fprintf_chk@plt+0x2f00>
+    108b:	0f 1f 44 00 00       	nop    DWORD PTR [rax+rax*1+0x0]
+
+0000000000001090 <__isoc99_scanf@plt>:
+    1090:	f3 0f 1e fa          	endbr64 
+    1094:	f2 ff 25 1d 2f 00 00 	bnd jmp QWORD PTR [rip+0x2f1d]        # 3fb8 <__fprintf_chk@plt+0x2f08>
+    109b:	0f 1f 44 00 00       	nop    DWORD PTR [rax+rax*1+0x0]
+
+00000000000010a0 <exit@plt>:
+    10a0:	f3 0f 1e fa          	endbr64 
+    10a4:	f2 ff 25 15 2f 00 00 	bnd jmp QWORD PTR [rip+0x2f15]        # 3fc0 <__fprintf_chk@plt+0x2f10>
+    10ab:	0f 1f 44 00 00       	nop    DWORD PTR [rax+rax*1+0x0]
+
+00000000000010b0 <__fprintf_chk@plt>:
+    10b0:	f3 0f 1e fa          	endbr64 
+    10b4:	f2 ff 25 0d 2f 00 00 	bnd jmp QWORD PTR [rip+0x2f0d]        # 3fc8 <__fprintf_chk@plt+0x2f18>
+    10bb:	0f 1f 44 00 00       	nop    DWORD PTR [rax+rax*1+0x0]
+
+Disassembly of section .text:
+
+00000000000010c0 <.text>:
+(1) 0x5555555550c0:
+    10c0:	f3 0f 1e fa          	endbr64 
+    10c4:	31 ed                	xor    ebp,ebp
+    10c6:	49 89 d1             	mov    r9,rdx
+    10c9:	5e                   	pop    rsi
+    10ca:	48 89 e2             	mov    rdx,rsp
+    10cd:	48 83 e4 f0          	and    rsp,0xfffffffffffffff0
+    10d1:	50                   	push   rax
+    10d2:	54                   	push   rsp
+    10d3:	4c 8d 05 26 03 00 00 	lea    r8,[rip+0x326]        # 1400 <__fprintf_chk@plt+0x350>
+    10da:	48 8d 0d af 02 00 00 	lea    rcx,[rip+0x2af]        # 1390 <__fprintf_chk@plt+0x2e0>
+    10e1:	48 8d 3d c1 00 00 00 	lea    rdi,[rip+0xc1]        # 11a9 <__fprintf_chk@plt+0xf9>
+    * - call __libc_start_main_impl   after 'ni' fail
+-- si   10e8:	ff 15 ea 2e 00 00    	call   QWORD PTR [rip+0x2eea]        # 3fd8 <__fprintf_chk@plt+0x2f28>
+|     10ee:	f4                   	hlt    
+|     10ef:	90                   	nop
+|     10f0:	48 8d 3d 31 2f 00 00 	lea    rdi,[rip+0x2f31]        # 4028 <__fprintf_chk@plt+0x2f78>
+|     10f7:	48 8d 05 2a 2f 00 00 	lea    rax,[rip+0x2f2a]        # 4028 <__fprintf_chk@plt+0x2f78>
+|     10fe:	48 39 f8             	cmp    rax,rdi
+|     1101:	74 15                	je     1118 <__fprintf_chk@plt+0x68>
+|     1103:	48 8b 05 c6 2e 00 00 	mov    rax,QWORD PTR [rip+0x2ec6]        # 3fd0 <__fprintf_chk@plt+0x2f20>
+|     110a:	48 85 c0             	test   rax,rax
+|     110d:	74 09                	je     1118 <__fprintf_chk@plt+0x68>
+|     110f:	ff e0                	jmp    rax
+|     1111:	0f 1f 80 00 00 00 00 	nop    DWORD PTR [rax+0x0]
+|     1118:	c3                   	ret    
+|     1119:	0f 1f 80 00 00 00 00 	nop    DWORD PTR [rax+0x0]
+|
+|  *-> 1120:	48 8d 3d 01 2f 00 00 	lea    rdi,[rip+0x2f01]        # 4028 <__fprintf_chk@plt+0x2f78>
+|  |   1127:	48 8d 35 fa 2e 00 00 	lea    rsi,[rip+0x2efa]        # 4028 <__fprintf_chk@plt+0x2f78>
+|  |   112e:	48 29 fe             	sub    rsi,rdi
+|  |   1131:	48 89 f0             	mov    rax,rsi
+|  |   1134:	48 c1 ee 3f          	shr    rsi,0x3f
+|  |   1138:	48 c1 f8 03          	sar    rax,0x3
+|  |   113c:	48 01 c6             	add    rsi,rax
+|  |   113f:	48 d1 fe             	sar    rsi,1
+|  | *-- 1142:	74 14                	je     1158 <__fprintf_chk@plt+0xa8>
+|  | |   1144:	48 8b 05 9d 2e 00 00 	mov    rax,QWORD PTR [rip+0x2e9d]        # 3fe8 <__fprintf_chk@plt+0x2f38>
+|  | |   114b:	48 85 c0             	test   rax,rax
+|  | |   114e:	74 08                	je     1158 <__fprintf_chk@plt+0xa8>
+|  | |   1150:	ff e0                	jmp    rax
+|  | |   1152:	66 0f 1f 44 00 00    	nop    WORD PTR [rax+rax*1+0x0]
+|  | *-> 1158:	c3                   	ret    
+|  |   1159:	0f 1f 80 00 00 00 00 	nop    DWORD PTR [rax+0x0]
+|  | (2)
+|  |  1160:	f3 0f 1e fa          	endbr64 
+|  |  1164:	80 3d dd 2e 00 00 00 	cmp    BYTE PTR [rip+0x2edd],0x0        # 4048 <stderr@GLIBC_2.2.5+0x8>
+|  |  116b:	75 2b                	jne    1198 <__fprintf_chk@plt+0xe8>
+|  |  116d:	55                   	push   rbp
+|  |  116e:	48 83 3d 7a 2e 00 00 	cmp    QWORD PTR [rip+0x2e7a],0x0        # 3ff0 <__fprintf_chk@plt+0x2f40>
+|  |  1175:	00 
+|  |  1176:	48 89 e5             	mov    rbp,rsp
+|  |  1179:	74 0c                	je     1187 <__fprintf_chk@plt+0xd7>
+|  |  117b:	48 8b 3d 86 2e 00 00 	mov    rdi,QWORD PTR [rip+0x2e86]        # 4008 <__fprintf_chk@plt+0x2f58>
+|  |  1182:	e8 e9 fe ff ff       	call   1070 <__cxa_finalize@plt>
+|  |  1187:	e8 64 ff ff ff       	call   10f0 <__fprintf_chk@plt+0x40>
+|  |  118c:	c6 05 b5 2e 00 00 01 	mov    BYTE PTR [rip+0x2eb5],0x1        # 4048 <stderr@GLIBC_2.2.5+0x8>
+|  |  1193:	5d                   	pop    rbp
+|  |  1194:	c3                   	ret    
+|  |  1195:	0f 1f 00             	nop    DWORD PTR [rax]
+|  |  1198:	c3                   	ret    
+|  |  1199:	0f 1f 80 00 00 00 00 	nop    DWORD PTR [rax+0x0]
+|  |
+|  | (3)
+|  |  11a0:	f3 0f 1e fa          	endbr64 
+|  *- 11a4:	e9 77 ff ff ff       	jmp    1120 <__fprintf_chk@plt+0x70>
+| 
+| (4)
+|     TODO Попали сюда из __libc_start_call_main из <__libc_start_main_impl+123>
+|     11a9:	f3 0f 1e fa          	endbr64 
+|     11ad:	41 54                	push   r12
+|     11af:	55                   	push   rbp
+|     11b0:	53                   	push   rbx
+|     11b1:	48 83 ec 10          	sub    rsp,0x10
+|     11b5:	64 48 8b 04 25 28 00 	mov    rax,QWORD PTR fs:0x28
+|     11bc:	00 00 
+|     11be:	48 89 44 24 08       	mov    QWORD PTR [rsp+0x8],rax
+|     11c3:	31 c0                	xor    eax,eax
+|     11c5:	48 8d 35 38 0e 00 00 	lea    rsi,[rip+0xe38]        # 2004 <__fprintf_chk@plt+0xf54>
+|     11cc:	bf 01 00 00 00       	mov    edi,0x1
+|      // ничего не вывело
+|     11d1:	e8 aa fe ff ff       	call   1080 <__printf_chk@plt>
+|     11d6:	48 8d 74 24 04       	lea    rsi,[rsp+0x4]
+|     11db:	48 8d 3d 37 0e 00 00 	lea    rdi,[rip+0xe37]        # 2019 <__fprintf_chk@plt+0xf69>
+|     11e2:	b8 00 00 00 00       	mov    eax,0x0
+|    ******** Put code: 0x...
+|     11e7:	e8 a4 fe ff ff       	call   1090 <__isoc99_scanf@plt>
+|     11ec:	44 8b 25 21 2e 00 00 	mov    r12d,DWORD PTR [rip+0x2e21]        # 4014 <__fprintf_chk@plt+0x2f64>
+|     11f3:	41 c1 ec 08          	shr    r12d,0x8
+|     11f7:	8b 05 13 2e 00 00    	mov    eax,DWORD PTR [rip+0x2e13]        # 4010 <__fprintf_chk@plt+0x2f60>
+|     11fd:	c1 e0 10             	shl    eax,0x10
+|     1200:	41 31 c4             	xor    r12d,eax
+|     1203:	8b 4c 24 04          	mov    ecx,DWORD PTR [rsp+0x4]
+|     1207:	8b 05 13 2e 00 00    	mov    eax,DWORD PTR [rip+0x2e13]        # 4020 <__fprintf_chk@plt+0x2f70>
+|     120d:	8b 15 09 2e 00 00    	mov    edx,DWORD PTR [rip+0x2e09]        # 401c <__fprintf_chk@plt+0x2f6c>
+|     1213:	89 c6                	mov    esi,eax
+|     1215:	31 ce                	xor    esi,ecx
+|     1217:	f7 c6 00 ff 00 00    	test   esi,0xff00
+|     121d:	0f 94 c3             	sete   bl
+|     1220:	0f b6 db             	movzx  ebx,bl
+|     1223:	89 d6                	mov    esi,edx
+|     1225:	31 ce                	xor    esi,ecx
+|     1227:	f7 c6 00 00 ff 00    	test   esi,0xff0000
+|     122d:	40 0f 94 c6          	sete   sil
+|     1231:	40 0f b6 f6          	movzx  esi,sil
+|     1235:	01 f3                	add    ebx,esi
+|     1237:	8b 35 db 2d 00 00    	mov    esi,DWORD PTR [rip+0x2ddb]        # 4018 <__fprintf_chk@plt+0x2f68>
+|     123d:	c1 e9 18             	shr    ecx,0x18
+|     1240:	89 f7                	mov    edi,esi
+|     1242:	c1 ef 18             	shr    edi,0x18
+|     1245:	39 f9                	cmp    ecx,edi
+|                                           ИСПРАВЛЕНО на jne
+|       *-- 1247:	74 55                	je      129e <__fprintf_chk@plt+0x1ee>
+|       |   1249:	01 d0                	add    eax,edx
+|       |   124b:	ba 00 00 00 00       	mov    edx,0x0
+|       |   1250:	f7 f6                	div    esi
+|       |   1252:	01 d3                	add    ebx,edx
+|   *---|-> 1254:	89 dd                	mov    ebp,ebx
+|   |   |   1256:	8b 0d c0 2d 00 00    	mov    ecx,DWORD PTR [rip+0x2dc0]        # 401c <__fprintf_chk@plt+0x2f6c>
+|   |   |   125c:	8b 35 b6 2d 00 00    	mov    esi,DWORD PTR [rip+0x2db6]        # 4018 <__fprintf_chk@plt+0x2f68>
+|   |   |   1262:	89 ca                	mov    edx,ecx
+|   |   |   1264:	c1 ea 08             	shr    edx,0x8
+|   |   |   1267:	44 31 e2             	xor    edx,r12d
+|   |   |   126a:	89 f0                	mov    eax,esi
+|   |   |   126c:	c1 e0 10             	shl    eax,0x10
+|   |   |   126f:	09 c8                	or     eax,ecx
+|   |   |   1271:	0f af d0             	imul   edx,eax
+|   |   |   1274:	89 15 a6 2d 00 00    	mov    DWORD PTR [rip+0x2da6],edx        # 4020 <__fprintf_chk@plt+0x2f70>
+|   |   |   127a:	48 8d 3d 0f 2b 00 00 	lea    rdi,[rip+0x2b0f]        # 3d90 <__fprintf_chk@plt+0x2ce0>
+|   |   |   1281:	89 d8                	mov    eax,ebx
+|   |   |   1283:	41 b8 ab aa aa aa    	mov    r8d,0xaaaaaaab
+|   |   |   1289:	49 0f af c0          	imul   rax,r8
+|   |   |   128d:	48 c1 e8 21          	shr    rax,0x21
+|   |   |   1291:	8d 04 40             	lea    eax,[rax+rax*2]
+|   |   |   1294:	41 89 d9             	mov    r9d,ebx
+|   |   |   1297:	41 29 c1             	sub    r9d,eax
+| *-|---|-- 129a:	42 ff 24 cf          	jmp    QWORD PTR [rdi+r9*8]
+| | |   |  rcx: "Not bad... " rdx "%s\n"
+| | |   *-> 129e:	48 8d 0d 77 0d 00 00 	lea    rcx,[rip+0xd77]        # 201c <__fprintf_chk@plt+0xf6c>
+| | |       12a5:	48 8d 15 80 0d 00 00 	lea    rdx,[rip+0xd80]        # 202c <__fprintf_chk@plt+0xf7c>
+| | |       12ac:	be 01 00 00 00       	mov    esi,0x1
+| | |       12b1:	48 8b 3d 88 2d 00 00 	mov    rdi,QWORD PTR [rip+0x2d88]        # 4040 <stderr@GLIBC_2.2.5>
+| | |       12b8:	b8 00 00 00 00       	mov    eax,0x0
+| | |       12bd:	e8 ee fd ff ff       	call   10b0 <__fprintf_chk@plt>
+| | |       12c2:	c7 05 80 2d 00 00 01 	mov    DWORD PTR [rip+0x2d80],0x1        # 404c <stderr@GLIBC_2.2.5+0xc>
+| | |       12c9:	00 00 00 
+| | *---    12cc:	eb 86                	jmp    1254 <__fprintf_chk@plt+0x1a4>
+| |
+| | (5)
+| *-> 12ce:	f3 0f 1e fa          	endbr64 
+|     12d2:	39 d1                	cmp    ecx,edx
+|     12d4:	19 ed                	sbb    ebp,ebp
+|     12d6:	83 cd fe             	or     ebp,0xfffffffe
+|     12d9:	d1 25 6d 2d 00 00    	shl    DWORD PTR [rip+0x2d6d],1        # 404c <stderr@GLIBC_2.2.5+0xc>
+|     12df:	83 3d 66 2d 00 00 00 	cmp    DWORD PTR [rip+0x2d66],0x0        # 404c <stderr@GLIBC_2.2.5+0xc>
+|  *--- 12e6:	74 7b   (try 47?)             	je     1363 <__fprintf_chk@plt+0x2b3>
+|  | 
+|  | But you are still retarder!
+|  |   12e8:	48 8d 0d 71 0d 00 00 	lea    rcx,[rip+0xd71]        # 2060 <__fprintf_chk@plt+0xfb0>
+|  |   12ef:	48 8d 15 36 0d 00 00 	lea    rdx,[rip+0xd36]        # 202c <__fprintf_chk@plt+0xf7c>
+|  |   12f6:	be 01 00 00 00       	mov    esi,0x1
+|  |   12fb:	48 8b 3d 3e 2d 00 00 	mov    rdi,QWORD PTR [rip+0x2d3e]        # 4040 <stderr@GLIBC_2.2.5>
+|  |   1302:	b8 00 00 00 00       	mov    eax,0x0
+|  |   1307:	e8 a4 fd ff ff       	call   10b0 <__fprintf_chk@plt>
+|  |   130c:	8d 7d fe             	lea    edi,[rbp-0x2]
+|  |   130f:	e8 8c fd ff ff       	call   10a0 <exit@plt>
+|  |
+|  | (6)
+|  |   1314:	f3 0f 1e fa          	endbr64 
+|  |   1318:	83 c6 06             	add    esi,0x6
+|  |   131b:	31 f1                	xor    ecx,esi
+|  |   131d:	39 ca                	cmp    edx,ecx
+|  |   131f:	19 ed                	sbb    ebp,ebp
+|  |   1321:	f7 d5                	not    ebp
+|  |   1323:	83 ed 03             	sub    ebp,0x3
+|  |   1326:	c1 25 1f 2d 00 00 02 	shl    DWORD PTR [rip+0x2d1f],0x2        # 404c <stderr@GLIBC_2.2.5+0xc>
+|  |   132d:	eb b0                	jmp    12df <__fprintf_chk@plt+0x22f>
+|  |
+|  | (7)
+|  |  132f:	f3 0f 1e fa          	endbr64 
+|  |  1333:	83 3d 12 2d 00 00 00 	cmp    DWORD PTR [rip+0x2d12],0x0        # 404c <stderr@GLIBC_2.2.5+0xc>
+|  *--- 133a:	74 27       (на 75)     	je     1363 <__fprintf_chk@plt+0x2b3>
+|  |  133c:	83 fb 02             	cmp    ebx,0x2
+|  |  133f:	75 a7            (на 74)    	jne    12e8 <__fprintf_chk@plt+0x238>
+|  |  1341:	44 89 e1             	mov    ecx,r12d
+|  |     treasure
+|  |  1344:	48 8d 15 fa 0c 00 00 	lea    rdx,[rip+0xcfa]        # 2045 <__fprintf_chk@plt+0xf95>
+|  |  134b:	be 01 00 00 00       	mov    esi,0x1
+|  |  1350:	48 8b 3d e9 2c 00 00 	mov    rdi,QWORD PTR [rip+0x2ce9]        # 4040 <stderr@GLIBC_2.2.5>
+|  |  1357:	b8 00 00 00 00       	mov    eax,0x0
+|  |  135c:	e8 4f fd ff ff       	call   10b0 <__fprintf_chk@plt>
+|  |  1361:	eb a9                	jmp    130c <__fprintf_chk@plt+0x25c>
+|  |
+|  |   you are looser!
+|  |    rip 0x555555555363 rcx 0x555555556030
+|  *->  1363:	48 8d 0d c6 0c 00 00 	lea    rcx,[rip+0xcc6]        # 2030 <__fprintf_chk@plt+0xf80>
+|       136a:	48 8d 15 bb 0c 00 00 	lea    rdx,[rip+0xcbb]        # 202c <__fprintf_chk@plt+0xf7c>
+|       1371:	be 01 00 00 00       	mov    esi,0x1
+|       1376:	48 8b 3d c3 2c 00 00 	mov    rdi,QWORD PTR [rip+0x2cc3]        # 4040 <stderr@GLIBC_2.2.5>
+|       137d:	b8 00 00 00 00       	mov    eax,0x0
+|       1382:	e8 29 fd ff ff       	call   10b0 <__fprintf_chk@plt>
+|       1387:	eb 83                	jmp    130c <__fprintf_chk@plt+0x25c>
+|       1389:	0f 1f 80 00 00 00 00 	nop    DWORD PTR [rax+0x0]
+|
+| (8) 0x555555555390:
+ -->  1390:	f3 0f 1e fa          	endbr64 
+    1394:	41 57                	push   r15
+    1396:	4c 8d 3d e3 29 00 00 	lea    r15,[rip+0x29e3]        # 3d80 <__fprintf_chk@plt+0x2cd0>
+    139d:	41 56                	push   r14
+    139f:	49 89 d6             	mov    r14,rdx
+    13a2:	41 55                	push   r13
+    13a4:	49 89 f5             	mov    r13,rsi
+    13a7:	41 54                	push   r12
+    13a9:	41 89 fc             	mov    r12d,edi
+    13ac:	55                   	push   rbp
+    13ad:	48 8d 2d d4 29 00 00 	lea    rbp,[rip+0x29d4]        # 3d88 <__fprintf_chk@plt+0x2cd8>
+    13b4:	53                   	push   rbx
+    13b5:	4c 29 fd             	sub    rbp,r15
+    13b8:	48 83 ec 08          	sub    rsp,0x8
+    13bc:	e8 3f fc ff ff       	call   1000 <__cxa_finalize@plt-0x70>
+    13c1:	48 c1 fd 03          	sar    rbp,0x3 <--- может тут?*
+    13c5:	74 1f                	je     13e6 проходим условие <__fprintf_chk@plt+0x336>
+    13c7:	31 db                	xor    ebx,ebx
+    13c9:	0f 1f 80 00 00 00 00 	nop    DWORD PTR [rax+0x0]
+    13d0:	4c 89 f2             	mov    rdx,r14
+    13d3:	4c 89 ee             	mov    rsi,r13
+    13d6:	44 89 e7             	mov    edi,r12d
+    Может надо вычислить rbx Сейчас уходим в (3) ???
+    13d9:	41 ff 14 df          	call   QWORD PTR [r15+rbx*8] ; rbx - 0x0
+    13dd:	48 83 c3 01          	add    rbx,0x1
+    13e1:	48 39 dd             	cmp    rbp,rbx
+    13e4:	75 ea                	jne    13d0 <__fprintf_chk@plt+0x320>
+    13e6:	48 83 c4 08          	add    rsp,0x8
+    13ea:	5b                   	pop    rbx
+    13eb:	5d                   	pop    rbp
+    13ec:	41 5c                	pop    r12
+    13ee:	41 5d                	pop    r13
+    13f0:	41 5e                	pop    r14
+    13f2:	41 5f                	pop    r15
+    13f4:	c3                   	ret    
+    13f5:	66 66 2e 0f 1f 84 00 	data16 cs nop WORD PTR [rax+rax*1+0x0]
+    13fc:	00 00 00 00 
+ (9)
+    1400:	f3 0f 1e fa          	endbr64 
+    1404:	c3                   	ret    
+
+Disassembly of section .fini:
+
+0000000000001408 <.fini>:
+    1408:	f3 0f 1e fa          	endbr64 
+    140c:	48 83 ec 08          	sub    rsp,0x8
+    1410:	48 83 c4 08          	add    rsp,0x8
+    1414:	c3                   	ret    

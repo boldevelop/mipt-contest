@@ -56,23 +56,23 @@ jg / jnle: проверяет одновременно два условия SF 
 
 int foo(int *arr, int size, int start_i)
 {
-    int eax, r8d;
+    int i, r8d, val;
     if (start_i == 0) {
         return 0;
     }
-    eax = start_i;
-    eax--;
-    if (eax < 0) {
+    i = start_i;
+    i--;
+    if (i < 0) {
         return start_i;
     }
 
   L4:
-    start_i = *(arr + eax);
-    r8d = eax;
-    if (start_i > size) {
-        *(arr + eax + 4) = start_i;
-        eax--;
-        if (eax == 0) {
+    val = *(arr + i);
+    r8d = i;
+    if (val > size) {
+        *(arr + i + 4) = val;
+        i--;
+        if (i == 0) {
             return r8d;
         }
         goto L4;

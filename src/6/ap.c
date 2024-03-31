@@ -24,7 +24,11 @@ gcc -S -masm=intel -Og -o ap1.asm ap.c
 //     return 1;
 // }
 
+#ifdef DEBUG
+int is_prime(unsigned a) { return a; }
+#else
 extern int is_prime(unsigned);
+#endif
 
 int main() {
     int primes[] = {2, 3, 5, 7, 11, 13, 17, 19};

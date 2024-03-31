@@ -25,14 +25,16 @@ R15	    R15D	R15W	N/A	        R15B	    General purpose
  */
 
 #ifdef DEBUG
-unsigned callee(unsigned v0, unsigned v1, unsigned v2) {
+unsigned callee(unsigned v0, unsigned v1, unsigned v2)
+{
     return v0 * v1 % v2;
 }
 #else
 extern unsigned callee(unsigned rdi, unsigned rsi, unsigned rdx);
 #endif
 
-unsigned caller(unsigned rdi, unsigned rsi, unsigned rdx) {
+unsigned caller(unsigned rdi, unsigned rsi, unsigned rdx)
+{
     unsigned r12 = 1;
     unsigned rbp;
     if (rsi == 0) {
@@ -54,4 +56,6 @@ unsigned caller(unsigned rdi, unsigned rsi, unsigned rdx) {
     return r12;
 }
 
-int main() {}
+int main()
+{
+}

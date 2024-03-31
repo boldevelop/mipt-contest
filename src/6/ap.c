@@ -25,13 +25,17 @@ gcc -S -masm=intel -Og -o ap1.asm ap.c
 // }
 
 #ifdef DEBUG
-int is_prime(unsigned a) { return a; }
+int is_prime(unsigned a)
+{
+    return a;
+}
 #else
 extern int is_prime(unsigned);
 #endif
 
-int main() {
-    int primes[] = {2, 3, 5, 7, 11, 13, 17, 19};
+int main()
+{
+    int primes[] = { 2, 3, 5, 7, 11, 13, 17, 19 };
     printf("Check Primes...\n");
     for (int i = 0; i < 8; ++i) {
         if (!is_prime(primes[i])) {

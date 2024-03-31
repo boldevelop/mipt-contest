@@ -82,8 +82,9 @@ int foo(int *arr, int size, int start_i)
     }
 }
 
-void dump_arr(int *x, int s) {
-    for (int i =0; i < s; ++i) {
+void dump_arr(int *x, int s)
+{
+    for (int i = 0; i < s; ++i) {
         printf("%d ", x[i]);
     }
     printf("\n");
@@ -91,7 +92,7 @@ void dump_arr(int *x, int s) {
 
 int main()
 {
-    int x[] = {1, 2, 4, 5, 3, 2};
+    int x[] = { 1, 2, 4, 5, 3, 2 };
     int res = foo(x, 6, 4);
     printf("res = %d\n", res);
     dump_arr(x, 6);
